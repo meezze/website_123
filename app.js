@@ -4,7 +4,7 @@
   const DICT = window.DAXI_I18N;
   const STORE = 'daxi_site_state_v1';
   const LANG_KEY = 'daxi_lang';
-  const INTRO_KEY = 'daxi_intro_seen_v1';
+  const INTRO_KEY = 'daxi_intro_seen_v2';
   const PATHS = ['driver','car','owner','business'];
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
@@ -20,7 +20,7 @@
     business:['fleet','drivers','classes','priority']
   };
   const defaults = () => ({hours:8,days:5,fleet:5,classes:[]});
-  let state = {lang:'ru', view:'home', path:null, step:0, answers:defaults(), returning:false, utm:{}};
+  let state = {lang:'ru', view:'choose', path:null, step:0, answers:defaults(), returning:false, utm:{}};
   let introTimer = 0;
   let lenis;
 
@@ -44,13 +44,15 @@
         state.answers = defaults();
         state.view = 'quiz';
       }
-    } else if (saved && saved.completed && PATHS.includes(saved.path)) {
+    } else if (saved && PATHS.includes(saved.path)) {
       state.path = saved.path;
       state.answers = {...defaults(), ...saved.answers};
-      state.step = saved.step || 0;
-      state.view = 'result';
-      state.returning = true;
+      state.step = Math.min(saved.step || 0, steps[saved.path].length - 1);
+      state.view = saved.completed ? 'result' : 'quiz';
+      state.returning = !!saved.completed;
       state.utm = {...saved.utm, ...state.utm};
+    } else {
+      state.view = 'choose';
     }
     document.documentElement.lang = state.lang;
     renderAll();
@@ -78,7 +80,18 @@
   }
 
   function renderHeader(){
-    $('#site-header').innerHTML = `
+    const header=$('#site-header');
+    const focused = state.view==='choose' || state.view==='quiz';
+    header.classList.toggle('flow-mode',focused);
+    if(focused){
+      header.innerHTML = `
+        <div class="nav-inner flow-nav">
+          <div class="wordmark-static">${logoSvg(false)}</div>
+          <div class="nav-actions"><button class="lang-switch" data-lang aria-label="Language">${state.lang.toUpperCase()} <span>/</span> ${t('other')}</button></div>
+        </div>`;
+      return;
+    }
+    header.innerHTML = `
       <div class="nav-inner">
         <button class="wordmark" data-go-home aria-label="Daxi">${logoSvg(false)}</button>
         <nav class="nav-links" aria-label="Navigation">
@@ -161,16 +174,46 @@
   function renderFlow(){
     const flow = $('#flow');
     flow.hidden = state.view === 'home';
-    if (state.view === 'home' || !state.path) { flow.innerHTML=''; return; }
-    if (state.view === 'quiz') renderQuiz(flow); else renderResult(flow);
+    if(state.view==='home'){ flow.innerHTML=''; return; }
+    if(state.view==='choose' || !state.path){ renderChooser(flow); return; }
+    if(state.view==='quiz') renderQuiz(flow); else renderResult(flow);
+  }
+
+  function renderChooser(flow){
+    const ru=state.lang==='ru';
+    const cards=[
+      ['driver',ru?'Есть своя машина':'Am mașina mea',ru?'Работать в такси на своём авто':'Lucrez în taxi cu mașina mea','01'],
+      ['car',ru?'Нужна машина':'Am nevoie de o mașină',ru?'Работа, аренда и вариант выкупа':'Muncă, chirie și opțiune de cumpărare','02'],
+      ['owner',ru?'Есть машина, пусть работает':'Am o mașină, să lucreze',ru?'Передать одну машину в управление':'Dau o mașină în administrare','03'],
+      ['business',ru?'Компания или автопарк':'Companie sau flotă',ru?'Несколько машин, с водителями или без':'Mai multe mașini, cu șoferi sau fără','04']
+    ];
+    flow.innerHTML=`<main class="chooser-page" id="main">
+      <section class="chooser-intro dark">
+        <div class="chooser-route">${routeSvg('chooser')}</div>
+        <div class="chooser-intro-inner">
+          <span class="kicker">${ru?'ТВОЙ ПУТЬ В DAXI':'TRASEUL TĂU ÎN DAXI'}</span>
+          <h1>${ru?'Сначала твоя ситуация.':'Începem cu situația ta.'}</h1>
+          <p>${ru?'Выбери один вариант. Дальше покажем только то, что относится к тебе.':'Alege o variantă. Mai departe arătăm doar ce este relevant pentru tine.'}</p>
+          <div class="chooser-facts"><span><b>0 lei</b>${ru?' без заказов':' fără comenzi'}</span><span><b>24/7</b>${ru?' поддержка':' suport'}</span><span><b>5–10</b>${ru?' дней оформление':' zile pentru acte'}</span></div>
+        </div>
+      </section>
+      <section class="chooser-panel">
+        <div class="chooser-top"><span>${ru?'Кто вы?':'Cine sunteți?'}</span><small>${ru?'1 нажатие':'1 atingere'}</small></div>
+        <div class="chooser-cards">
+          ${cards.map(([p,title,sub,n])=>`<button class="chooser-card" data-path="${p}"><span class="chooser-num">${n}</span><div><strong>${title}</strong><small>${sub}</small></div><i>↗</i></button>`).join('')}
+        </div>
+        <p class="chooser-note">${ru?'Без звонка и регистрации. Сначала просто разберём твой вариант.':'Fără apel și înregistrare. Mai întâi vedem varianta potrivită.'}</p>
+      </section>
+    </main>`;
+    requestAnimationFrame(()=>animateFlowIn());
   }
 
   function renderQuiz(flow){
     const key = steps[state.path][state.step];
     const progress = ((state.step+1)/steps[state.path].length)*100;
-    flow.innerHTML = `<main class="quiz-page" id="main"><div class="quiz-context dark"><div>${logoSvg(true)}<span class="kicker">${t(pathKey[state.path])}</span><h2>${contextTitle()}</h2><p>${contextText()}</p></div><div class="quiz-zero"><strong>0<small> lei</small></strong><span>${t('p1d')}</span></div></div><div class="quiz-panel"><div class="quiz-bar"><button data-back>← ${t('back')}</button><span>${state.step+1} / ${steps[state.path].length}</span></div><div class="progress"><i style="width:${progress}%"></i></div><div class="question" id="question">${questionMarkup(key)}</div></div></main>`;
+    flow.innerHTML = `<main class="quiz-page" id="main"><div class="quiz-context dark"><div>${logoSvg(true)}<span class="kicker">${t(pathKey[state.path])}</span><h2>${contextTitle()}</h2><p>${contextText()}</p></div><div class="quiz-zero"><strong>0<small> lei</small></strong><span>${t('p1d')}</span></div></div><div class="quiz-panel"><div class="quiz-bar"><button data-back>← ${t('back')}</button><span>${state.step+1} / ${steps[state.path].length}</span></div><div class="progress"><i style="width:${progress}%"></i></div><div class="question" id="question" data-step="${key}">${questionMarkup(key)}</div></div></main>`;
     bindQuestion(key);
-    requestAnimationFrame(()=>$('#question h1')?.focus({preventScroll:true}));
+    requestAnimationFrame(()=>animateFlowIn());
   }
 
   function contextTitle(){
@@ -201,7 +244,8 @@
     if(key==='priority') return qWrap(t('qPriority'), chips([{v:'load',k:'priorityLoad'},{v:'records',k:'priorityRecords'},{v:'service',k:'priorityService'}], 'priority'));
     return '';
   }
-  function qWrap(title,body){ return `<span class="kicker">${state.lang==='ru'?'ВОПРОС':'ÎNTREBARE'} ${String(state.step+1).padStart(2,'0')}</span><h1 tabindex="-1">${title}</h1><div class="question-body">${body}</div><button class="pill pill-black question-next" data-next ${canNext()?'':'disabled'}>${t('next')} →</button><p class="question-note">${state.lang==='ru'?'Ответы сохраняются на этом устройстве.':'Răspunsurile se salvează pe acest dispozitiv.'}</p>`; }
+  function autoStep(key){ return ['experience','driving','class','buyout','location','ready','drivers','priority'].includes(key); }
+  function qWrap(title,body){ const key=steps[state.path][state.step]; return `<span class="kicker">${state.lang==='ru'?'ВОПРОС':'ÎNTREBARE'} ${String(state.step+1).padStart(2,'0')}</span><h1 tabindex="-1">${title}</h1><div class="question-body">${body}</div>${autoStep(key)?'':`<button class="pill pill-black question-next" data-next ${canNext()?'':'disabled'}>${t('next')} →</button>`}<p class="question-note">${state.lang==='ru'?'Ответы сохраняются на этом устройстве.':'Răspunsurile se salvează pe acest dispozitiv.'}</p>`; }
   function chips(items,key){ return `<div class="chips">${items.map(x=>`<button class="chip ${state.answers[key]===x.v?'active':''}" data-answer="${key}" data-value="${x.v}">${t(x.k)}<span>${state.answers[key]===x.v?'✓':'→'}</span></button>`).join('')}</div>`; }
   function classCards(){
     const defs=[['standard','Dacia Logan'],['comfort','Toyota Prius 50'],['comfortPlus','Lexus ES'],['electric','Volkswagen ID.4']];
@@ -227,30 +271,66 @@
     const q = $('#question'); if(!q) return;
     q.addEventListener('click', e => {
       const chip = e.target.closest('[data-answer]');
-      if(chip){ state.answers[chip.dataset.answer]=chip.dataset.value; persist(false); renderQuiz($('#flow')); return; }
+      if(chip){
+        const answerKey=chip.dataset.answer;
+        state.answers[answerKey]=chip.dataset.value;
+        persist(false);
+        q.querySelectorAll('[data-answer="'+answerKey+'"]').forEach(x=>x.classList.toggle('active',x===chip));
+        chip.classList.add('choice-pop');
+        if(autoStep(key)) setTimeout(()=>nextQuestion(),180); else renderQuiz($('#flow'));
+        return;
+      }
       const multi=e.target.closest('[data-multi]');
       if(multi){ const v=multi.dataset.multi; const arr=new Set(state.answers.classes||[]); arr.has(v)?arr.delete(v):arr.add(v); state.answers.classes=[...arr]; persist(false); renderQuiz($('#flow')); return; }
       const preset=e.target.closest('[data-preset]');
-      if(preset){ const p=preset.dataset.preset; const vals=p==='evenings'?[3,3]:p==='half'?[6,5]:[10,6]; state.answers.hours=vals[0]; state.answers.days=vals[1]; renderQuiz($('#flow')); return; }
+      if(preset){ const p=preset.dataset.preset; const vals=p==='evenings'?[3,3]:p==='half'?[6,5]:[10,6]; state.answers.hours=vals[0]; state.answers.days=vals[1]; persist(false); renderQuiz($('#flow')); return; }
       const unknown=e.target.closest('[data-unknown]');
-      if(unknown){ state.answers.carUnknown=!state.answers.carUnknown; if(state.answers.carUnknown){state.answers.brand='';state.answers.model='';state.answers.year='';} renderQuiz($('#flow')); return; }
+      if(unknown){ state.answers.carUnknown=!state.answers.carUnknown; if(state.answers.carUnknown){state.answers.brand='';state.answers.model='';state.answers.year='';persist(false);setTimeout(()=>nextQuestion(),180);} else renderQuiz($('#flow')); return; }
       const btn=e.target.closest('.picker-button');
       if(btn){ const wrap=btn.closest('.picker'); closePickers(wrap); const pop=$('.picker-pop',wrap); pop.hidden=!pop.hidden; btn.setAttribute('aria-expanded',String(!pop.hidden)); if(!pop.hidden) setTimeout(()=>$('.picker-pop input',wrap)?.focus(),0); return; }
       const opt=e.target.closest('[data-pick]');
-      if(opt){ const wrap=opt.closest('.picker'); const k=wrap.dataset.picker; let v=opt.dataset.pick; if(k==='year') v=Number(v); state.answers[k]=v; state.answers.carUnknown=false; if(k==='brand'){state.answers.model='';state.answers.year='';} if(k==='model') state.answers.year=''; persist(false); renderQuiz($('#flow')); return; }
+      if(opt){
+        const wrap=opt.closest('.picker'); const k=wrap.dataset.picker; let v=opt.dataset.pick;
+        if(k==='year') v=Number(v);
+        state.answers[k]=v; state.answers.carUnknown=false;
+        if(k==='brand'){state.answers.model='';state.answers.year='';}
+        if(k==='model') state.answers.year='';
+        persist(false);
+        if(k==='year') setTimeout(()=>nextQuestion(),180); else renderQuiz($('#flow'));
+        return;
+      }
       if(e.target.closest('[data-next]')) nextQuestion();
     });
     q.addEventListener('input', e => {
       if(e.target.matches('.picker-pop input')){ const term=e.target.value.toLowerCase(); $$('.picker-list button',e.target.closest('.picker')).forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(term)); }
       if(e.target.matches('[data-range]')){ const k=e.target.dataset.range; state.answers[k]=Number(e.target.value); if(k==='fleet') $('.fleet-value strong').textContent=e.target.value; else e.target.closest('.slider-row').querySelector('strong').textContent=e.target.value; persist(false); }
     });
-    $('[data-back]', $('#flow'))?.addEventListener('click', () => { if(state.step>0){state.step--;renderFlow();scrollTop();} else {state.view='home';renderAll();setTimeout(()=>scrollToId('paths'),20);} });
+    $('[data-back]', $('#flow'))?.addEventListener('click', () => {
+      if(state.step>0){ transitionFlow(()=>{state.step--;renderFlow();scrollTop();},-1); }
+      else {
+        transitionFlow(()=>{
+          state.path=null;state.step=0;state.answers=defaults();state.view='choose';
+          const url=new URL(location.href);url.searchParams.delete('path');url.pathname=basePath();history.pushState({},'',url);
+          renderAll();scrollTop();
+        },-1);
+      }
+    });
     document.addEventListener('click', outsidePicker, {once:true,capture:true});
   }
+
   function outsidePicker(e){ if(!e.target.closest('.picker')) closePickers(); }
   function closePickers(except){ $$('.picker').forEach(p=>{ if(p!==except){$('.picker-pop',p).hidden=true;$('.picker-button',p)?.setAttribute('aria-expanded','false');} }); }
   function canNext(){ const k=steps[state.path][state.step],a=state.answers; if(k==='experience')return !!a.experience;if(k==='car')return !!a.carUnknown||!!(a.brand&&a.model&&a.year);if(k==='schedule')return !!(a.hours&&a.days);if(k==='driving')return !!a.driving;if(k==='class')return !!a.class;if(k==='buyout')return !!a.buyout;if(k==='location')return !!a.location;if(k==='ready')return !!a.ready;if(k==='fleet')return a.fleet>=2;if(k==='drivers')return !!a.drivers;if(k==='classes')return !!a.classes?.length;if(k==='priority')return !!a.priority;return false; }
-  function nextQuestion(){ if(!canNext()) return; const k=steps[state.path][state.step]; track('question_answered',{path:state.path,question:k,step:state.step+1}); sendCRM('question_answered'); if(state.step===steps[state.path].length-1){state.view='result';state.returning=false;persist(true);renderAll();track('result_viewed',{path:state.path});sendCRM('result_viewed');scrollTop();} else {state.step++;persist(false);renderFlow();scrollTop();} }
+  function nextQuestion(){
+    if(!canNext()) return;
+    const k=steps[state.path][state.step];
+    track('question_answered',{path:state.path,question:k,step:state.step+1}); sendCRM('question_answered');
+    if(state.step===steps[state.path].length-1){
+      transitionFlow(()=>{state.view='result';state.returning=false;persist(true);renderAll();track('result_viewed',{path:state.path});sendCRM('result_viewed');scrollTop();},1);
+    } else {
+      transitionFlow(()=>{state.step++;persist(false);renderFlow();scrollTop();},1);
+    }
+  }
 
   function renderResult(flow){
     const r = calculate(); const a=state.answers; const blocked=['driver','car'].includes(state.path) && a.driving==='under';
@@ -302,7 +382,7 @@
   function checklistMarkup(){ const a=state.answers; let items=[]; if(state.path==='driver')items=state.lang==='ru'?['Водительское удостоверение','Паспорт или ID','Документы на автомобиль','Страховка','Телефон с приложением Daxi']:['Permis de conducere','Buletin sau pașaport','Actele mașinii','Asigurare','Telefon cu aplicația Daxi']; else if(state.path==='car')items=state.lang==='ru'?['Водительское удостоверение','Паспорт или ID','Документы для трудового оформления','Телефон с приложением Daxi']:['Permis de conducere','Buletin sau pașaport','Acte pentru angajare','Telefon cu aplicația Daxi']; else if(state.path==='owner')items=state.lang==='ru'?['Документы на автомобиль','Страховка','Документ владельца','Ключи и комплект автомобиля']:['Actele mașinii','Asigurare','Actul proprietarului','Cheile și dotarea mașinii']; else items=state.lang==='ru'?['Список автомобилей','Документы на машины','Данные водителей, если есть','Контакт ответственного лица']:['Lista mașinilor','Actele mașinilor','Datele șoferilor, dacă există','Contactul persoanei responsabile']; return `<section class="result-card"><span class="kicker">CHECKLIST</span><h2>${t('checklist')}</h2><ul class="check-list">${items.map(x=>`<li><b>✓</b>${x}</li>`).join('')}</ul></section>`; }
   function conversionMarkup(){ const msg=leadMessage(); const wa=`https://wa.me/${C.contact.whatsapp}?text=${encodeURIComponent(msg)}`; const tg=`https://t.me/share/url?url=${encodeURIComponent(location.origin)}&text=${encodeURIComponent(msg)}`; const vb=`viber://forward?text=${encodeURIComponent(msg)}`; return `<div class="conversion"><div class="app-dot">D</div><h2>${t('appModalTitle')}</h2><p>${t('appModalText')}</p><button class="pill pill-amber full" data-app>${t('registerApp')} →</button><span class="or">${t('discuss')}</span><div class="messengers"><a href="${wa}" target="_blank" data-msg="whatsapp">WhatsApp ↗</a><a href="${vb}" data-msg="viber">Viber ↗</a><a href="${tg}" target="_blank" data-msg="telegram">Telegram ↗</a></div><button class="copy-button" data-copy>${t('copy')}</button><div class="manager"><div class="avatar">${C.managers[0].initials}</div><div><strong>${t('manager')}</strong><span>${t('call15')}</span><a href="tel:${C.managers[0].phone}">${C.contact.phones[1]}</a></div></div></div>${['driver','car'].includes(state.path)?`<div class="referral-mini"><strong>${fmt(C.facts.referralBonus)} lei</strong><p>${state.lang==='ru'?'За друга со своей машиной после выполнения условий программы.':'Pentru un prieten cu mașina proprie după îndeplinirea condițiilor programului.'}</p></div>`:''}`; }
   function bindResult(r){
-    $('[data-edit]')?.addEventListener('click',()=>{state.view='quiz';state.step=0;persist(false);renderAll();scrollTop()});
+    $('[data-edit]')?.addEventListener('click',()=>transitionFlow(()=>{state.view='quiz';state.step=0;persist(false);renderAll();scrollTop();},-1));
     $('[data-switch-car]')?.addEventListener('click',()=>selectPath('car'));
     $('[data-report]')?.addEventListener('click',e=>{const tbl=$('.report-table');tbl.hidden=!tbl.hidden;e.currentTarget.textContent=tbl.hidden?t('businessReport')+' →':(state.lang==='ru'?'Скрыть пример':'Ascunde exemplul')});
     $('[data-copy]')?.addEventListener('click',async e=>{try{await navigator.clipboard.writeText(leadMessage());e.currentTarget.textContent=t('copied')}catch{}});
@@ -320,27 +400,67 @@
       if(e.target.closest('[data-menu]')) toggleMenu(true);
       if(e.target.closest('[data-menu-close]')) toggleMenu(false);
     });
-    window.addEventListener('popstate',()=>{const p=PATHS.includes(location.pathname.split('/').filter(Boolean).pop())?location.pathname.split('/').filter(Boolean).pop():new URLSearchParams(location.search).get('path');if(PATHS.includes(p)){state.path=p;state.view='quiz';state.step=0;}else state.view='home';renderAll();scrollTop()});
+    window.addEventListener('popstate',()=>{
+      const p=PATHS.includes(location.pathname.split('/').filter(Boolean).pop())?location.pathname.split('/').filter(Boolean).pop():new URLSearchParams(location.search).get('path');
+      if(PATHS.includes(p)){state.path=p;state.view='quiz';state.step=0;}else{state.path=null;state.view='choose';state.step=0;}
+      renderAll();scrollTop();
+    });
   }
-  function selectPath(p){ if(!PATHS.includes(p))return; state.path=p;state.answers=defaults();state.step=0;state.view='quiz';state.returning=false;persist(false);track('path_selected',{path:p});const url=new URL(location.href);url.searchParams.set('path',p);url.pathname=basePath();history.pushState({},'',url);renderAll();scrollTop(); }
+  function selectPath(p){
+    if(!PATHS.includes(p))return;
+    transitionFlow(()=>{
+      state.path=p;state.answers=defaults();state.step=0;state.view='quiz';state.returning=false;persist(false);
+      track('path_selected',{path:p});
+      const url=new URL(location.href);url.searchParams.set('path',p);url.pathname=basePath();history.pushState({},'',url);
+      renderAll();scrollTop();
+    },1);
+  }
+  function animateFlowIn(){
+    const el=$('#flow main'); if(!el)return;
+    if(window.gsap&&!reduced()) gsap.fromTo(el,{opacity:0,y:18,scale:.994},{opacity:1,y:0,scale:1,duration:.48,ease:'power3.out',clearProps:'transform'});
+  }
+  function transitionFlow(next,direction=1){
+    const el=$('#flow main');
+    if(window.gsap&&el&&!reduced()){
+      gsap.to(el,{opacity:0,y:-10*direction,scale:.996,duration:.2,ease:'power2.in',onComplete:next});
+    } else next();
+  }
+
   function basePath(){ const m=location.pathname.match(/^(.*?)(?:\/(?:driver|car|owner|business)\/?)?$/);return (m&&m[1])||'/'; }
   function scrollToId(id){ document.getElementById(id)?.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'}); }
   function scrollTop(){ window.scrollTo({top:0,behavior:'auto'}); }
 
   function showIntro(){
-    const el=$('#intro');el.hidden=false;el.innerHTML=`<div class="intro-dark"><div class="intro-controls"><button data-intro-lang>${state.lang.toUpperCase()} / ${t('other')}</button><button data-intro-skip>${t('skip')}</button></div><div class="intro-route">${routeSvg('intro')}</div><div class="intro-copy"><div class="intro-logo">${logoSvg(true)}</div><h1><span>${t('introA')}</span><span>${t('introB')}</span></h1><ul><li>${t('intro1')}</li><li>${t('intro2')}</li><li>${t('intro3')}</li></ul><button class="pill pill-amber intro-continue" data-intro-continue>${t('continue')} →</button></div></div>`;
-    const finish=(reason)=>{clearTimeout(introTimer);el.hidden=true;localStorage.setItem(INTRO_KEY,'1');track('intro_continue',{reason});document.body.style.overflow='';};
-    document.body.style.overflow='hidden'; $('[data-intro-skip]',el).onclick=()=>finish('skip'); $('[data-intro-continue]',el).onclick=()=>finish('continue'); $('[data-intro-lang]',el).onclick=()=>{state.lang=state.lang==='ru'?'ro':'ru';localStorage.setItem(LANG_KEY,state.lang);renderAll();showIntro();};
-    if(window.gsap&&!reduced()) introTimeline(el); else $('.intro-continue',el).style.opacity=1;
-    introTimer=setTimeout(()=>finish('auto'),5800);
+    const el=$('#intro'); let closing=false;
+    el.hidden=false;
+    el.innerHTML=`<div class="intro-dark"><div class="intro-controls"><button data-intro-lang>${state.lang.toUpperCase()} / ${t('other')}</button><button data-intro-skip>${t('skip')}</button></div><div class="intro-route">${routeSvg('intro')}</div><div class="intro-copy"><div class="intro-logo">${logoSvg(true)}</div><h1><span>${t('introA')}</span><span>${t('introB')}</span></h1><ul><li>${t('intro1')}</li><li>${t('intro2')}</li><li>${t('intro3')}</li></ul><div class="intro-handoff"><i></i><span>${state.lang==='ru'?'Подбираем твой путь':'Pregătim traseul tău'}</span></div></div></div>`;
+    const finish=(reason)=>{
+      if(closing)return; closing=true; clearTimeout(introTimer);
+      localStorage.setItem(INTRO_KEY,'1'); track('intro_continue',{reason});
+      const done=()=>{el.hidden=true;document.body.style.overflow='';requestAnimationFrame(()=>animateFlowIn());};
+      if(window.gsap&&!reduced()) gsap.to(el,{opacity:0,scale:1.008,duration:.5,ease:'power2.inOut',onComplete:done}); else done();
+    };
+    document.body.style.overflow='hidden';
+    $('[data-intro-skip]',el).onclick=()=>finish('skip');
+    $('[data-intro-lang]',el).onclick=()=>{clearTimeout(introTimer);state.lang=state.lang==='ru'?'ro':'ru';localStorage.setItem(LANG_KEY,state.lang);renderAll();el.hidden=true;showIntro();};
+    if(window.gsap&&!reduced()) introTimeline(el);
+    introTimer=setTimeout(()=>finish('auto'),4300);
   }
-  function introTimeline(el){ const tl=gsap.timeline();tl.set('.intro-continue',{opacity:0,y:10}).from('.intro-logo',{opacity:0,scale:.7,rotationY:-70,duration:.65,ease:'back.out(1.4)'}).from('.intro-route .route-line',{strokeDasharray:1,strokeDashoffset:1,duration:1.2,ease:'power2.inOut'},.1).to('.intro-route .car-dot',{motionPath:{path:'.intro-route .route-line',align:'.intro-route .route-line',alignOrigin:[.5,.5]},duration:1.5,ease:'power1.inOut'},.15).from('.intro-copy h1 span',{y:'105%',duration:.55,stagger:.18,ease:'power3.out'},.5).from('.intro-copy li',{opacity:0,y:10,duration:.35,stagger:.15},1.2).to('.intro-continue',{opacity:1,y:0,duration:.4},1.8); }
+  function introTimeline(el){
+    const tl=gsap.timeline();
+    tl.from('.intro-logo',{opacity:0,scale:.76,rotationY:-55,duration:.62,ease:'back.out(1.35)'})
+      .from('.intro-route .route-line',{strokeDasharray:1,strokeDashoffset:1,duration:1.1,ease:'power2.inOut'},.05)
+      .to('.intro-route .car-dot',{motionPath:{path:'.intro-route .route-line',align:'.intro-route .route-line',alignOrigin:[.5,.5]},duration:1.35,ease:'power1.inOut'},.1)
+      .from('.intro-copy h1 span',{y:'110%',duration:.52,stagger:.16,ease:'power3.out'},.42)
+      .from('.intro-copy li',{opacity:0,y:10,duration:.3,stagger:.12,ease:'power2.out'},1.05)
+      .from('.intro-handoff',{opacity:0,y:8,duration:.35,ease:'power2.out'},1.7);
+  }
 
   function openApp(){ $('#app-modal').hidden=false;document.body.style.overflow='hidden';track('register_app_click',{path:state.path||'general',stage:'modal'}); }
   function renderAppModal(){ const el=$('#app-modal');el.innerHTML=`<div class="modal-backdrop" data-modal-close></div><div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="app-title"><button class="modal-x" data-modal-close>×</button>${logoSvg(false)}<h2 id="app-title">${t('appModalTitle')}</h2><p>${t('appModalText')}</p><div class="store-buttons"><a href="${C.app.googlePlay}" target="_blank" data-store="google"><small>${state.lang==='ru'?'Скачать в':'Descarcă din'}</small><strong>${t('google')}</strong><b>↗</b></a><a href="${C.app.appStore}" target="_blank" data-store="apple"><small>${state.lang==='ru'?'Скачать в':'Descarcă din'}</small><strong>${t('apple')}</strong><b>↗</b></a></div></div>`; el.onclick=e=>{if(e.target.closest('[data-modal-close]')){el.hidden=true;document.body.style.overflow='';}const s=e.target.closest('[data-store]');if(s)track('register_app_click',{path:state.path||'general',store:s.dataset.store});}; }
   function toggleMenu(open){ const m=$('#menu');m.hidden=!open;if(open){m.innerHTML=`<div class="menu-panel"><button class="modal-x" data-menu-close>×</button>${logoSvg(false)}<button data-scroll="how">${t('navHow')} ↗</button><button data-scroll="paths">${t('calculate')} ↗</button><button data-scroll="app">${t('navApp')} ↗</button><button data-scroll="faq">${t('navFaq')} ↗</button></div>`;} }
 
-  function renderFooter(){ $('#footer').innerHTML=`<div class="section footer-grid"><div class="footer-brand">${logoSvg(true)}<p>${t('footerLine')}</p></div><div><span class="kicker">${t('addressLabel')}</span><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(C.contact.address)}" target="_blank">${C.contact.address} ↗</a></div><div><span class="kicker">${t('phonesLabel')}</span>${C.contact.phones.map((p,i)=>`<a href="tel:${C.contact.phoneLinks[i]}">${p}</a>`).join('')}</div><div><span class="kicker">${t('socialLabel')}</span><a href="${C.contact.telegram}" target="_blank">Telegram ↗</a><a href="${C.contact.tiktok}" target="_blank">TikTok ↗</a></div></div><div class="section footer-bottom"><span>DAXI / CHIȘINĂU</span><button data-lang>${state.lang.toUpperCase()} / ${t('other')}</button></div>`; }
+  function renderFooter(){ const footer=$('#footer'); const focused=state.view==='choose'||state.view==='quiz'; footer.hidden=focused; if(focused){footer.innerHTML='';return;} footer.innerHTML=`<div class="section footer-grid"><div class="footer-brand">${logoSvg(true)}<p>${t('footerLine')}</p></div><div><span class="kicker">${t('addressLabel')}</span><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(C.contact.address)}" target="_blank">${C.contact.address} ↗</a></div><div><span class="kicker">${t('phonesLabel')}</span>${C.contact.phones.map((p,i)=>`<a href="tel:${C.contact.phoneLinks[i]}">${p}</a>`).join('')}</div><div><span class="kicker">${t('socialLabel')}</span><a href="${C.contact.telegram}" target="_blank">Telegram ↗</a><a href="${C.contact.tiktok}" target="_blank">TikTok ↗</a></div></div><div class="section footer-bottom"><span>DAXI / CHIȘINĂU</span><button data-lang>${state.lang.toUpperCase()} / ${t('other')}</button></div>`; }
 
   function howScene(n,title,text,type){ return `<article class="how-scene" data-scene="${n}"><div class="scene-copy"><span class="scene-num">0${n}</span><h3>${title}</h3><p>${text}</p>${n===4?`<button class="pill pill-black" data-scroll="paths">${t('calculate')} →</button>`:''}</div><div class="scene-art">${sceneArt(type)}</div></article>`; }
   function sceneArt(type){ if(type==='request')return `<div class="request-card"><span>◉</span><strong>${state.lang==='ru'?'Куда едем?':'Unde mergem?'}</strong><i></i><button>${state.lang==='ru'?'Найти машину':'Găsește mașina'} <b>→</b></button></div><div class="scene-platforms"><b>Yandex</b><b>Bolt</b><b>Letz</b></div>`; if(type==='hub')return `<div class="hub"><div class="hub-top"><span>Yandex</span><span>Bolt</span><span>Letz</span></div>${routeSvg('hub')}<div class="hub-node">DAXI</div><div class="driver-node">🚕 <span>${state.lang==='ru'?'Твой заказ':'Comanda ta'}</span></div></div>`; if(type==='services')return `<div class="service-grid">${[['▣',state.lang==='ru'?'Лицензия':'Licență'],['▤',state.lang==='ru'?'Касса':'Casă fiscală'],['✓',state.lang==='ru'?'Документы':'Acte'],['◆',state.lang==='ru'?'Страховка':'Asigurare'],['⌁',state.lang==='ru'?'Сервис':'Service'],['◎','24/7']].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>`; return `<div class="finance-art"><div class="phone small-phone">${appScreen('finance')}</div><div class="balance-card"><span>${state.lang==='ru'?'Баланс':'Sold'}</span><strong>12 480<small> lei</small></strong>${demoBadge()}</div></div>`; }

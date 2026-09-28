@@ -108,7 +108,7 @@
         <div class="nav-inner flow-nav">
           <div class="wordmark-static">${logoSvg(false)}</div>
           <div class="flow-nav-actions">
-            <button class="flow-about-link" data-about>${state.lang==='ru'?'О Daxi':'Despre Daxi'}</button>
+            <button class="flow-about-link" data-about><span>${state.lang==='ru'?'Подробнее о Daxi':'Mai multe despre Daxi'}</span><b>↗</b></button>
             <button class="lang-switch" data-lang aria-label="Language">${state.lang.toUpperCase()} <span>/</span> ${t('other')}</button>
           </div>
         </div>`;
@@ -194,30 +194,131 @@
         </div>
         <div class="company-app-flow"><div><span class="kicker">${state.lang==='ru'?'КАК НАЧАТЬ':'CUM ÎNCEPI'}</span><h3>${state.lang==='ru'?'Регистрация начинается в приложении.':'Înregistrarea începe în aplicație.'}</h3><p>${state.lang==='ru'?'После регистрации бот Daxi пишет в WhatsApp, Viber или Telegram и помогает продолжить подключение.':'După înregistrare, botul Daxi scrie în WhatsApp, Viber sau Telegram și ajută la continuarea conectării.'}</p></div><button class="pill pill-black" data-app>${state.lang==='ru'?'Открыть приложение':'Deschid aplicația'} ↗</button></div>
       </section>
+      <section class="daxi-directions section" id="directions">
+        <div class="direction-head">
+          <div><span class="kicker">04 / ${state.lang==='ru'?'ВСЕ НАПРАВЛЕНИЯ':'TOATE DIRECȚIILE'}</span><h2 class="display">${state.lang==='ru'?'Daxi для разных ситуаций.':'Daxi pentru situații diferite.'}</h2></div>
+          <p>${state.lang==='ru'?'Один парк, но задачи разные. Водителю важны условия и сервис. Владельцу машины нужен прозрачный учёт. Компании важно видеть весь автопарк.':'Un singur parc, dar nevoile diferă. Șoferului îi contează condițiile și service-ul. Proprietarul are nevoie de evidență clară. Compania trebuie să vadă întreaga flotă.'}</p>
+        </div>
+        <div class="direction-grid">
+          <article class="direction-card direction-driver">
+            <span class="direction-no">01</span><div class="direction-icon">↗</div>
+            <h3>${state.lang==='ru'?'Водитель со своей машиной':'Șofer cu mașina proprie'}</h3>
+            <p>${state.lang==='ru'?'Легализация 5–10 рабочих дней, подключение к заказам, только процент с заработка, скидка в своём сервисе.':'Legalizare în 5–10 zile lucrătoare, conectare la comenzi, doar procent din câștig, reducere la service-ul propriu.'}</p>
+            <button class="text-link" data-path="driver">${state.lang==='ru'?'Проверить свой вариант':'Verific varianta mea'} ↗</button>
+          </article>
+          <article class="direction-card">
+            <span class="direction-no">02</span><div class="direction-icon">⌁</div>
+            <h3>${state.lang==='ru'?'Водитель без машины':'Șofer fără mașină'}</h3>
+            <p>${state.lang==='ru'?'Машина Daxi, работа без фиксированной платы парку и вариант выкупа машины из заработка.':'Mașină Daxi, fără plată fixă către parc și opțiune de cumpărare a mașinii din câștig.'}</p>
+            <button class="text-link" data-path="car">${state.lang==='ru'?'Посмотреть машины':'Văd mașinile'} ↗</button>
+          </article>
+          <article class="direction-card">
+            <span class="direction-no">03</span><div class="direction-icon">◉</div>
+            <h3>${state.lang==='ru'?'Владелец одной машины':'Proprietar cu o mașină'}</h3>
+            <p>${state.lang==='ru'?'Передаёте машину в работу. Доход, расходы и ремонт видны в приложении каждый день, даже если вы за границей.':'Dați mașina în lucru. Venitul, cheltuielile și reparațiile sunt vizibile zilnic în aplicație, chiar dacă sunteți peste hotare.'}</p>
+            <button class="text-link" data-path="owner">${state.lang==='ru'?'Обсудить машину':'Discut despre mașină'} ↗</button>
+          </article>
+          <article class="direction-card">
+            <span class="direction-no">04</span><div class="direction-icon">▦</div>
+            <h3>${state.lang==='ru'?'Компания или автопарк':'Companie sau flotă'}</h3>
+            <p>${state.lang==='ru'?'Машины с водителями или без. Начинаем с одной, смотрим доход, расходы и простой по каждой машине.':'Mașini cu șoferi sau fără. Începem cu una și urmărim venitul, cheltuielile și staționarea fiecărei mașini.'}</p>
+            <button class="text-link" data-path="business">${state.lang==='ru'?'Посмотреть B2B':'Văd B2B'} ↗</button>
+          </article>
+          <article class="direction-card direction-app">
+            <span class="direction-no">05</span><div class="direction-icon">▣</div>
+            <h3>${state.lang==='ru'?'Уже клиент Daxi':'Deja client Daxi'}</h3>
+            <p>${state.lang==='ru'?'Поездки, выплаты, бонусы, уровень комиссии, расходы по машине и баланс владельца находятся в приложении.':'Cursele, plățile, bonusurile, nivelul de comision, cheltuielile mașinii și soldul proprietarului sunt în aplicație.'}</p>
+            <button class="text-link" data-scroll="app">${state.lang==='ru'?'Что есть в приложении':'Ce este în aplicație'} ↓</button>
+          </article>
+          <article class="direction-card direction-service">
+            <span class="direction-no">06</span><div class="direction-icon">✦</div>
+            <h3>${state.lang==='ru'?'Автосервис Daxi':'Service auto Daxi'}</h3>
+            <p>${state.lang==='ru'?'Свой сервис со специализацией на гибридах. Для водителей Daxi действуют скидки.':'Service propriu specializat în hibride. Șoferii Daxi beneficiază de reduceri.'}</p>
+            <button class="text-link" data-scroll="service">${state.lang==='ru'?'Подробнее о сервисе':'Mai multe despre service'} ↓</button>
+          </article>
+        </div>
+      </section>
       <section class="paths section" id="paths">
-        <span class="kicker">04 / ${state.lang==='ru'?'ВАШ ВАРИАНТ':'VARIANTA DVS.'}</span>
+        <span class="kicker">05 / ${state.lang==='ru'?'ВАШ ВАРИАНТ':'VARIANTA DVS.'}</span>
         <h2 class="display">${t('who')}</h2><p class="lead">${t('whoSub')}</p>
         <div class="path-grid">
           ${pathCard('driver','01')}${pathCard('car','02')}${pathCard('owner','03')}${pathCard('business','04')}
         </div>
       </section>
       <section class="pillars dark" id="pillars"><div class="section">
-        <span class="kicker">05 / DAXI</span><h2 class="display light-title" data-reveal>${t('pillarsTitle')}</h2>
+        <span class="kicker">06 / DAXI</span><h2 class="display light-title" data-reveal>${t('pillarsTitle')}</h2>
         <div class="pillar-grid">${pillars.map((p,i)=>`<article class="pillar-card ${i===0?'wide':''}" data-reveal><span class="pillar-index">0${i+1}</span><div><h3>${t(p)}</h3><p>${t(p+'d')}</p></div>${i===0?'<strong class="zero-big">0</strong>':''}</article>`).join('')}</div>
       </div></section>
       <section class="app-section" id="app"><div class="section">
-        <div class="split-head"><div><span class="kicker">06 / DAXI APP</span><h2 class="display" data-reveal>${t('appTitle')}</h2></div><div><p>${t('appText')}</p><button class="pill pill-black" data-app>${t('navStart')} ↗</button></div></div>
+        <div class="split-head"><div><span class="kicker">07 / DAXI APP</span><h2 class="display" data-reveal>${t('appTitle')}</h2></div><div><p>${state.lang==='ru'?'Заказы водитель получает в сервисах. Всё, что относится к работе с Daxi, собираем в одном месте: деньги, машина, бонусы и связь с парком.':'Șoferul primește comenzile în servicii. Tot ce ține de munca cu Daxi este într-un singur loc: bani, mașină, bonusuri și legătura cu parcul.'}</p><button class="pill pill-black" data-app>${t('navStart')} ↗</button></div></div>
         <div class="phones-row">
           ${appShowcase('finance',t('finance'),'01')}${appShowcase('bonus',t('bonus'),'02')}${appShowcase('pulse',t('pulse'),'03')}${appShowcase('owner',t('ownerBalance'),'04')}
         </div>
+        <div class="app-detail-grid">
+          <article><span>01</span><h3>${state.lang==='ru'?'Каждая поездка':'Fiecare cursă'}</h3><p>${state.lang==='ru'?'История работы и начислений без ручного подсчёта.':'Istoricul muncii și al calculărilor fără calcule manuale.'}</p></article>
+          <article><span>02</span><h3>${state.lang==='ru'?'Выплаты':'Plăți'}</h3><p>${state.lang==='ru'?'Баланс и движение денег видны в приложении.':'Soldul și mișcarea banilor sunt vizibile în aplicație.'}</p></article>
+          <article><span>03</span><h3>${state.lang==='ru'?'Уровень комиссии':'Nivelul comisionului'}</h3><p>${state.lang==='ru'?'Больше заказов, ниже комиссия. Шкала видна водителю.':'Mai multe comenzi, comision mai mic. Șoferul vede nivelul.'}</p></article>
+          <article><span>04</span><h3>${state.lang==='ru'?'Бонусы':'Bonusuri'}</h3><p>${state.lang==='ru'?'Акции и начисления находятся рядом с основными расчётами.':'Promoțiile și bonusurile sunt lângă calculele principale.'}</p></article>
+          <article><span>05</span><h3>${state.lang==='ru'?'Машина и сервис':'Mașină și service'}</h3><p>${state.lang==='ru'?'Расходы по машине и история сервиса доступны по роли пользователя.':'Cheltuielile mașinii și istoricul service-ului sunt disponibile în funcție de rol.'}</p></article>
+          <article><span>06</span><h3>${state.lang==='ru'?'Владелец':'Proprietar'}</h3><p>${state.lang==='ru'?'Доход, расходы, ремонт и баланс своей машины можно смотреть каждый день.':'Venitul, cheltuielile, reparațiile și soldul mașinii pot fi urmărite zilnic.'}</p></article>
+        </div>
+        <div class="app-registration"><div><span class="kicker">${state.lang==='ru'?'РЕГИСТРАЦИЯ':'ÎNREGISTRARE'}</span><h3>${state.lang==='ru'?'Приложение → бот → менеджер.':'Aplicație → bot → manager.'}</h3><p>${state.lang==='ru'?'После регистрации бот продолжает общение в WhatsApp, Viber или Telegram.':'După înregistrare, botul continuă conversația în WhatsApp, Viber sau Telegram.'}</p></div><button class="pill pill-black" data-app>${state.lang==='ru'?'Начать регистрацию':'Încep înregistrarea'} ↗</button></div>
       </div></section>
-      <section class="services section">
-        <article class="feature"><div class="feature-copy"><span class="kicker">07 / SERVICE</span><h2>${t('serviceTitle')}</h2><p>${t('serviceText')}</p><button class="pill pill-outline" data-path="driver">${t('calculate')} →</button></div><div class="media-placeholder service-media"><span>${state.lang==='ru'?'МЕСТО ДЛЯ ФОТО СЕРВИСА DAXI':'LOC PENTRU FOTO SERVICE DAXI'}</span></div></article>
-        <article class="feature feature-card"><div class="feature-copy"><span class="kicker">08 / BUYOUT</span><h2>${t('buyoutTitle')}</h2><p>${t('buyoutText')}</p><button class="pill pill-black" data-path="car">${t('calculate')} →</button></div><img src="https://daxi.md/assets/themes/daxi/img/catalog/10.webp" alt="Volkswagen ID.4 Daxi" loading="lazy" onerror="this.style.display='none'"/></article>
-        <div class="two-cards"><article><span class="kicker">09 / OWNER</span><h2>${t('ownersTitle')}</h2><p>${t('ownersText')}</p><button class="text-link" data-path="owner">${t('calculate')} ↗</button></article><article class="dark-card"><span class="kicker">10 / BUSINESS</span><h2>${t('businessTitle')}</h2><p>${t('businessText')}</p><button class="text-link light" data-path="business">${t('calculate')} ↗</button></article></div>
+      <section class="driver-map-section dark" id="driver-map"><div class="section">
+        <div class="driver-map-head">
+          <div><span class="kicker">08 / ${state.lang==='ru'?'КАРТА ТАКСИСТА':'HARTA ȘOFERULUI'}</span><h2 class="display light-title">${state.lang==='ru'?'Полезные точки Кишинёва в одной карте.':'Punctele utile din Chișinău pe o singură hartă.'}</h2></div>
+          <div><span class="concept-badge">${state.lang==='ru'?'КОНЦЕПТ ИЗ ПЛАНА':'CONCEPT DIN PLAN'}</span><p>${state.lang==='ru'?'Идея из маркетинговой презентации Daxi. Перед публичным запуском нужно наполнить реальными проверенными точками.':'Idee din prezentarea de marketing Daxi. Înainte de lansarea publică trebuie completată cu puncte reale verificate.'}</p></div>
+        </div>
+        <div class="driver-map-layout">
+          <div class="driver-map-canvas">
+            <svg viewBox="0 0 760 500" aria-label="${state.lang==='ru'?'Концепт карты таксиста Кишинёва':'Conceptul hărții șoferului din Chișinău'}">
+              <path class="map-road major" d="M40 374 C148 307 188 212 304 198 S501 246 720 92"/>
+              <path class="map-road" d="M70 114 C184 161 281 147 349 75 S537 39 696 145"/>
+              <path class="map-road" d="M116 460 C183 365 312 337 391 384 S559 448 704 362"/>
+              <path class="map-road" d="M196 48 C189 142 235 276 170 424"/>
+              <path class="map-road" d="M486 48 C447 142 483 233 560 306 S632 403 607 474"/>
+              <path class="map-ring" d="M178 124 C282 48 476 60 580 155 S615 348 494 414 S225 424 146 316 S99 181 178 124Z"/>
+              <circle class="map-core" cx="376" cy="247" r="17"/><text x="404" y="252">DAXI</text>
+              <g class="map-pin pin-coffee" data-map-point="coffee" transform="translate(267 135)"><circle r="13"/><text x="0" y="4">C</text></g>
+              <g class="map-pin pin-charge" data-map-point="charge" transform="translate(552 174)"><circle r="13"/><text x="0" y="4">E</text></g>
+              <g class="map-pin pin-wash" data-map-point="wash" transform="translate(231 341)"><circle r="13"/><text x="0" y="4">W</text></g>
+              <g class="map-pin pin-rest" data-map-point="rest" transform="translate(492 369)"><circle r="13"/><text x="0" y="4">R</text></g>
+              <g class="map-pin pin-pickup" data-map-point="pickup" transform="translate(617 287)"><circle r="13"/><text x="0" y="4">P</text></g>
+            </svg>
+            <div class="map-legend"><span>Daxi</span><span>${state.lang==='ru'?'пример точек':'exemple de puncte'}</span></div>
+          </div>
+          <div class="map-tool">
+            <span class="kicker">${state.lang==='ru'?'ЧТО БУДЕТ НА КАРТЕ':'CE VA FI PE HARTĂ'}</span>
+            <div class="map-categories">
+              <button class="active" data-map-cat="all"><i></i>${state.lang==='ru'?'Все':'Toate'}</button>
+              <button data-map-cat="coffee"><i></i>${state.lang==='ru'?'Кофе ночью':'Cafea noaptea'}</button>
+              <button data-map-cat="rest"><i></i>${state.lang==='ru'?'Туалеты / отдых':'Toalete / odihnă'}</button>
+              <button data-map-cat="charge"><i></i>${state.lang==='ru'?'Зарядки':'Încărcare'}</button>
+              <button data-map-cat="wash"><i></i>${state.lang==='ru'?'Мойки':'Spălătorii'}</button>
+              <button data-map-cat="pickup"><i></i>${state.lang==='ru'?'Сложные подачи':'Preluări dificile'}</button>
+            </div>
+            <div class="map-community-copy"><strong>${state.lang==='ru'?'Водители дополняют карту сами.':'Șoferii completează harta.'}</strong><p>${state.lang==='ru'?'В презентации идея задумана бесплатной для всех таксистов города, с брендом Daxi как источником полезного инструмента.':'În prezentare, ideea este gândită gratuit pentru toți taximetriștii orașului, cu Daxi ca sursă a instrumentului util.'}</p><button class="text-link light" data-message-map>${state.lang==='ru'?'Предложить полезную точку':'Propune un punct util'} ↗</button></div>
+          </div>
+        </div>
+      </div></section>
+      <section class="driver-community section" id="community">
+        <div class="community-head"><div><span class="kicker">09 / ${state.lang==='ru'?'СВОИ ЛЮДИ':'OAMENII TĂI'}</span><h2 class="display">${state.lang==='ru'?'Поддержка должна быть видна до проблемы.':'Suportul trebuie să fie vizibil înainte de problemă.'}</h2></div><p>${state.lang==='ru'?'Daxi уже может доказать это офисом, поддержкой 24/7, своим сервисом и людьми, которых водитель знает по имени. Остальные форматы из презентации отмечаем как идеи до согласования.':'Daxi poate demonstra deja acest lucru prin birou, suport 24/7, service propriu și oameni pe care șoferul îi cunoaște pe nume. Restul formatelor din prezentare sunt marcate ca idei până la aprobare.'}</p></div>
+        <div class="community-grid">
+          <article class="community-office"><span>01 / ${state.lang==='ru'?'УЖЕ ЕСТЬ':'EXISTĂ'}</span><h3>${state.lang==='ru'?'Открытый офис и кофе':'Birou deschis și cafea'}</h3><p>${state.lang==='ru'?'str. Nicolae Testemițanu 4. Можно приехать и решить вопрос лично.':'str. Nicolae Testemițanu 4. Puteți veni și rezolva problema personal.'}</p><a href="https://www.google.com/maps/search/?api=1&query=Str.%20Nicolae%20Testemitanu%204%20Chisinau" target="_blank">${state.lang==='ru'?'Открыть адрес':'Deschid adresa'} ↗</a></article>
+          <article><span>02 / 24/7</span><h3>${state.lang==='ru'?'Поддержка':'Suport'}</h3><p>${state.lang==='ru'?'Документы, вопросы по работе и ситуации на линии.':'Acte, întrebări despre muncă și situații pe traseu.'}</p></article>
+          <article><span>03 / SERVICE</span><h3>${state.lang==='ru'?'Свой сервис':'Service propriu'}</h3><p>${state.lang==='ru'?'Ремонт и обслуживание, специализация на гибридах, скидки водителям Daxi.':'Reparații și întreținere, specializare în hibride, reduceri pentru șoferii Daxi.'}</p></article>
+          <article class="community-concept"><span>04 / ${state.lang==='ru'?'ИДЕЯ':'IDEE'}</span><h3>${state.lang==='ru'?'Совет водителей':'Consiliul șoferilor'}</h3><p>${state.lang==='ru'?'Идея из презентации: регулярная встреча с владельцем Daxi и публикация принятых решений.':'Idee din prezentare: întâlnire regulată cu proprietarul Daxi și publicarea deciziilor.'}</p></article>
+          <article class="community-concept"><span>05 / ${state.lang==='ru'?'ИДЕЯ':'IDEE'}</span><h3>${state.lang==='ru'?'Встречи и показы машин':'Întâlniri și prezentări auto'}</h3><p>${state.lang==='ru'?'Открытые дни, знакомство с машинами и ответы на вопросы до первой смены.':'Zile deschise, prezentarea mașinilor și răspunsuri înainte de prima tură.'}</p></article>
+          <article><span>06 / REFERRAL</span><h3>2 000 lei</h3><p>${state.lang==='ru'?'Бонус за водителя со своей машиной. Детали подтверждает менеджер.':'Bonus pentru un șofer cu mașina proprie. Detaliile sunt confirmate de manager.'}</p></article>
+        </div>
       </section>
-      <section class="faq section" id="faq"><div class="faq-title"><span class="kicker">11 / FAQ</span><h2 class="display">${t('faqTitle')}</h2><p>${t('faqSub')}</p></div><div class="faq-list">${[1,2,3,4,5].map(i=>`<details><summary>${t('faq'+i)}<b>+</b></summary><p>${t('faq'+i+'a')}</p></details>`).join('')}</div></section>
-      <section class="referral dark"><div class="section referral-grid"><div><span class="kicker">12 / REFERRAL</span><h2>${t('referralTitle')}</h2><p>${t('referralText')}</p></div><div class="referral-num"><strong>${fmt(C.facts.referralBonus)}</strong><span>lei</span><button class="pill pill-amber" data-path="driver">${t('calculate')} →</button></div></div></section>`;
+      <section class="services section" id="service">
+        <article class="feature"><div class="feature-copy"><span class="kicker">10 / SERVICE</span><h2>${t('serviceTitle')}</h2><p>${t('serviceText')}</p><button class="pill pill-outline" data-path="driver">${t('calculate')} →</button></div><div class="media-placeholder service-media"><span>${state.lang==='ru'?'МЕСТО ДЛЯ ФОТО СЕРВИСА DAXI':'LOC PENTRU FOTO SERVICE DAXI'}</span></div></article>
+        <article class="feature feature-card"><div class="feature-copy"><span class="kicker">11 / BUYOUT</span><h2>${t('buyoutTitle')}</h2><p>${t('buyoutText')}</p><button class="pill pill-black" data-path="car">${t('calculate')} →</button></div><img src="https://daxi.md/assets/themes/daxi/img/catalog/10.webp" alt="Volkswagen ID.4 Daxi" loading="lazy" onerror="this.style.display='none'"/></article>
+        <div class="two-cards"><article><span class="kicker">12 / OWNER</span><h2>${t('ownersTitle')}</h2><p>${t('ownersText')}</p><button class="text-link" data-path="owner">${t('calculate')} ↗</button></article><article class="dark-card"><span class="kicker">13 / BUSINESS</span><h2>${t('businessTitle')}</h2><p>${t('businessText')}</p><button class="text-link light" data-path="business">${t('calculate')} ↗</button></article></div>
+      </section>
+      <section class="faq section" id="faq"><div class="faq-title"><span class="kicker">14 / FAQ</span><h2 class="display">${t('faqTitle')}</h2><p>${t('faqSub')}</p></div><div class="faq-list">${[1,2,3,4,5].map(i=>`<details><summary>${t('faq'+i)}<b>+</b></summary><p>${t('faq'+i+'a')}</p></details>`).join('')}</div></section>
+      <section class="referral dark"><div class="section referral-grid"><div><span class="kicker">15 / REFERRAL</span><h2>${t('referralTitle')}</h2><p>${t('referralText')}</p></div><div class="referral-num"><strong>${fmt(C.facts.referralBonus)}</strong><span>lei</span><button class="pill pill-amber" data-path="driver">${t('calculate')} →</button></div></div></section>`;
   }
 
   function renderFlow(){
@@ -295,7 +396,7 @@
     return '';
   }
   function autoStep(key){ return ['experience','driving','class','buyout','location','ready','drivers','priority'].includes(key); }
-  function qWrap(title,body){ const key=steps[state.path][state.step]; return `<span class="kicker">${state.lang==='ru'?'ВОПРОС':'ÎNTREBARE'} ${String(state.step+1).padStart(2,'0')}</span><h1 tabindex="-1">${title}</h1><div class="question-body">${body}</div>${autoStep(key)?'':`<button class="pill pill-black question-next" data-next ${canNext()?'':'disabled'}>${t('next')} →</button>`}<p class="question-note">${state.lang==='ru'?'Ответы сохраняются на этом устройстве.':'Răspunsurile se salvează pe acest dispozitiv.'}</p>`; }
+  function qWrap(title,body){ const key=steps[state.path][state.step]; return `<span class="kicker">${state.lang==='ru'?'ВОПРОС':'ÎNTREBARE'} ${String(state.step+1).padStart(2,'0')}</span><h1 tabindex="-1">${title}</h1><div class="question-body">${body}</div>${autoStep(key)?'':`<button class="pill pill-black question-next" data-next ${canNext()?'':'disabled'}>${t('next')} →</button>`}<p class="question-note">${state.lang==='ru'?'Тестовый режим: после перезагрузки ответы сбросятся.':'Mod test: după reîncărcare, răspunsurile se resetează.'}</p>`; }
   function chips(items,key){ return `<div class="chips">${items.map(x=>`<button class="chip ${state.answers[key]===x.v?'active':''}" data-answer="${key}" data-value="${x.v}">${t(x.k)}<span>${state.answers[key]===x.v?'✓':'→'}</span></button>`).join('')}</div>`; }
   function classCards(){
     const defs=[['standard','Dacia Logan'],['comfort','Toyota Prius 50'],['comfortPlus','Lexus ES'],['electric','Volkswagen ID.4']];
@@ -445,6 +546,8 @@
       const lang=e.target.closest('[data-lang]'); if(lang){state.lang=state.lang==='ru'?'ro':'ru';localStorage.setItem(LANG_KEY,state.lang);renderAll();return;}
       const about=e.target.closest('[data-about]'); if(about){browseReturnView=state.view==='home'?(state.path?'quiz':'choose'):state.view;state.view='home';renderAll();scrollTop();return;}
       const resume=e.target.closest('[data-resume-flow]'); if(resume){state.view=state.path?(browseReturnView==='result'?'result':'quiz'):'choose';renderAll();scrollTop();return;}
+      const mapCat=e.target.closest('[data-map-cat]'); if(mapCat){const cat=mapCat.dataset.mapCat;$('[data-map-cat]').forEach(x=>x.classList.toggle('active',x===mapCat));$('[data-map-point]').forEach(x=>x.classList.toggle('muted',cat!=='all'&&x.dataset.mapPoint!==cat));return;}
+      const mapMsg=e.target.closest('[data-message-map]'); if(mapMsg){const msg=state.lang==='ru'?'Здравствуйте! Хочу предложить полезную точку для Карты таксиста Daxi.':'Bună ziua! Vreau să propun un punct util pentru Harta șoferului Daxi.';window.open('https://wa.me/'+C.contact.whatsapp+'?text='+encodeURIComponent(msg),'_blank','noopener');return;}
       const path=e.target.closest('[data-path]'); if(path){selectPath(path.dataset.path);return;}
       const scroll=e.target.closest('[data-scroll]'); if(scroll){ if(state.view!=='home'){state.path=null;state.step=0;state.answers=defaults();state.view='choose';renderAll();scrollTop();} else scrollToId(scroll.dataset.scroll); return; }
       if(e.target.closest('[data-go-home]')){state.path=null;state.step=0;state.answers=defaults();state.view='choose';renderAll();scrollTop();return;}

@@ -1,0 +1,81 @@
+name: Verify fixed Daxi funnel
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: JS syntax
+        run: node --check app.js && node --check config.js && node --check i18n.js
+      - name: Install browser
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 --silent
+          npx playwright install --with-deps chromium
+      - name: Start site
+        run: |
+          python3 -m http.server 4173 >/tmp/daxi-server.log 2>&1 &
+          echo $! > /tmp/daxi-server.pid
+          sleep 2
+      - name: Verify mobile fixed flow
+        run: |
+          cat > /tmp/verify.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const page = await browser.newPage({viewport:{width:360,height:800}});
+          await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+          await page.evaluate(()=>{localStorage.clear();location.reload()});
+          await page.waitForSelector('#intro:not([hidden])');
+          if(await page.locator('[data-intro-continue]').count()) throw new Error('Intro still has continue confirmation');
+          await page.waitForSelector('.chooser-page',{timeout:7000});
+          const layout=await page.evaluate(()=>({
+            bodyClass:document.body.className,
+            bodyScroll:document.body.scrollHeight,
+            inner:innerHeight,
+            homeHidden:document.querySelector('#home').hidden,
+            flowDisplay:getComputedStyle(document.querySelector('#flow')).display,
+            flowPos:getComputedStyle(document.querySelector('#flow')).position
+          }));
+          console.log('LAYOUT',layout);
+          if(!layout.bodyClass.includes('flow-lock')) throw new Error('body is not flow locked');
+          if(!layout.homeHidden) throw new Error('landing home is still visible');
+          if(layout.bodyScroll>layout.inner+2) throw new Error('document still scrolls like a landing: '+JSON.stringify(layout));
+          if(layout.flowPos!=='fixed') throw new Error('#flow is not fixed');
+          await page.locator('[data-path="driver"]').click();
+          await page.waitForSelector('.quiz-page');
+          await page.locator('[data-answer="experience"]').first().click();
+          await page.waitForFunction(()=>document.querySelector('#question')?.dataset.step==='car');
+          await page.locator('[data-picker="brand"] .picker-button').click();
+          await page.locator('[data-picker="brand"] [data-pick="Toyota"]').click();
+          await page.locator('[data-picker="model"] .picker-button').click();
+          await page.locator('[data-picker="model"] [data-pick="Prius 30"]').click();
+          await page.locator('[data-picker="year"] .picker-button').click();
+          await page.locator('[data-picker="year"] [data-pick="2020"]').click();
+          await page.waitForFunction(()=>document.querySelector('#question')?.dataset.step==='schedule');
+          await page.locator('[data-next]').click();
+          await page.waitForFunction(()=>document.querySelector('#question')?.dataset.step==='driving');
+          await page.locator('[data-answer="driving"][data-value="3-5"]').click();
+          await page.waitForSelector('.result');
+          const result=await page.evaluate(()=>({
+            bodyScroll:document.body.scrollHeight,
+            inner:innerHeight,
+            resultOverflow:getComputedStyle(document.querySelector('.result')).overflowY
+          }));
+          console.log('RESULT',result);
+          if(result.bodyScroll>result.inner+2) throw new Error('body scroll returned on result');
+          for(const p of ['driver','car','owner','business']){
+            await page.goto('http://127.0.0.1:4173/?path='+p,{waitUntil:'domcontentloaded'});
+            await page.waitForSelector('.quiz-page');
+            const step=await page.locator('#question').getAttribute('data-step');
+            console.log('PATH',p,'STEP',step);
+          }
+          await browser.close();
+          JS
+          node /tmp/verify.mjs

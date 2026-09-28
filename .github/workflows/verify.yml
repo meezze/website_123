@@ -116,12 +116,20 @@ jobs:
             homeHidden:document.querySelector('#home').hidden,
             partners:!!document.querySelector('#partners'),
             company:!!document.querySelector('#company'),
+            directions:!!document.querySelector('#directions'),
+            app:!!document.querySelector('#app'),
+            driverMap:!!document.querySelector('#driver-map'),
+            community:!!document.querySelector('#community'),
+            service:!!document.querySelector('#service'),
+            appDetails:document.querySelectorAll('.app-detail-grid article').length,
+            directionsCount:document.querySelectorAll('.direction-card').length,
             scrollH:document.body.scrollHeight,
             innerH:innerHeight
           }));
           console.log('LANDING',landing);
           if(landing.flowLocked) throw new Error('general landing remained flow-locked');
-          if(landing.homeHidden || !landing.partners || !landing.company) throw new Error('general landing sections missing');
+          if(landing.homeHidden || !landing.partners || !landing.company || !landing.directions || !landing.app || !landing.driverMap || !landing.community || !landing.service) throw new Error('general landing sections missing');
+          if(landing.appDetails<6 || landing.directionsCount<6) throw new Error('general landing lost service/app detail cards');
           if(landing.scrollH<=landing.innerH) throw new Error('general landing is not browseable');
           await aboutPage.locator('[data-resume-flow]').first().click();
           await aboutPage.waitForSelector('.chooser-page');
@@ -137,9 +145,13 @@ jobs:
 
           const context=await browser.newContext({viewport:{width:360,height:800}});
           const page=await context.newPage();
-          await page.goto('http://127.0.0.1:4173/?path=driver',{waitUntil:'domcontentloaded'});
+          await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
           await page.evaluate(()=>localStorage.clear());
           await page.reload({waitUntil:'domcontentloaded'});
+          await page.waitForSelector('#intro:not([hidden])');
+          await page.locator('[data-intro-skip]').click();
+          await page.waitForSelector('.chooser-page');
+          await page.locator('[data-path="driver"]').click();
           await page.waitForSelector('.quiz-page');
           let metrics=await page.evaluate(()=>({w:innerWidth,scrollW:document.documentElement.scrollWidth,scrollH:document.body.scrollHeight,h:innerHeight}));
           if(metrics.scrollW>metrics.w+2 || metrics.scrollH>metrics.h+2) throw new Error('driver quiz overflows viewport: '+JSON.stringify(metrics));

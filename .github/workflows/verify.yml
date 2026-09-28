@@ -73,6 +73,40 @@ jobs:
 
           for(const [w,h] of [[360,800],[390,844],[430,932]]) await mobileLayout(w,h);
 
+          const aboutContext=await browser.newContext({viewport:{width:390,height:844}});
+          const aboutPage=await aboutContext.newPage();
+          await aboutPage.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+          await aboutPage.evaluate(()=>localStorage.clear());
+          await aboutPage.reload({waitUntil:'domcontentloaded'});
+          await aboutPage.waitForSelector('#intro:not([hidden])');
+          await aboutPage.locator('[data-intro-skip]').click();
+          await aboutPage.waitForSelector('.chooser-page');
+          await aboutPage.locator('.chooser-about').click();
+          await aboutPage.waitForSelector('#partners');
+          const landing=await aboutPage.evaluate(()=>({
+            flowLocked:document.body.classList.contains('flow-lock'),
+            homeHidden:document.querySelector('#home').hidden,
+            partners:!!document.querySelector('#partners'),
+            company:!!document.querySelector('#company'),
+            scrollH:document.body.scrollHeight,
+            innerH:innerHeight
+          }));
+          console.log('LANDING',landing);
+          if(landing.flowLocked) throw new Error('general landing remained flow-locked');
+          if(landing.homeHidden || !landing.partners || !landing.company) throw new Error('general landing sections missing');
+          if(landing.scrollH<=landing.innerH) throw new Error('general landing is not browseable');
+          await aboutPage.locator('[data-resume-flow]').first().click();
+          await aboutPage.waitForSelector('.chooser-page');
+          const resumed=await aboutPage.evaluate(()=>({
+            flowLocked:document.body.classList.contains('flow-lock'),
+            scrollH:document.body.scrollHeight,
+            innerH:innerHeight,
+            scrollW:document.documentElement.scrollWidth,
+            innerW:innerWidth
+          }));
+          if(!resumed.flowLocked || resumed.scrollH>resumed.innerH+2 || resumed.scrollW>resumed.innerW+2) throw new Error('funnel did not resume cleanly: '+JSON.stringify(resumed));
+          await aboutContext.close();
+
           const context=await browser.newContext({viewport:{width:360,height:800}});
           const page=await context.newPage();
           await page.goto('http://127.0.0.1:4173/?path=driver',{waitUntil:'domcontentloaded'});

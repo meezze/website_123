@@ -72,6 +72,8 @@ jobs:
           if(result.bodyScroll>result.inner+2) throw new Error('body scroll returned on result');
           for(const p of ['driver','car','owner','business']){
             await page.goto('http://127.0.0.1:4173/?path='+p,{waitUntil:'domcontentloaded'});
+            await page.evaluate(()=>localStorage.clear());
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.waitForSelector('.quiz-page');
             const step=await page.locator('#question').getAttribute('data-step');
             console.log('PATH',p,'STEP',step);

@@ -73,6 +73,34 @@ jobs:
 
           for(const [w,h] of [[360,800],[390,844],[430,932]]) await mobileLayout(w,h);
 
+          const resetContext=await browser.newContext({viewport:{width:390,height:844}});
+          const resetPage=await resetContext.newPage();
+          await resetPage.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+          await resetPage.evaluate(()=>localStorage.clear());
+          await resetPage.reload({waitUntil:'domcontentloaded'});
+          await resetPage.waitForSelector('#intro:not([hidden])');
+          await resetPage.locator('[data-intro-skip]').click();
+          await resetPage.waitForSelector('.chooser-page');
+          await resetPage.locator('[data-path="driver"]').click();
+          await resetPage.waitForSelector('.quiz-page');
+          await resetPage.locator('[data-answer="experience"]').first().click();
+          await resetPage.waitForFunction(()=>document.querySelector('#question')?.dataset.step==='car');
+          const beforeReload=await resetPage.evaluate(()=>({store:localStorage.getItem('daxi_site_state_v2'),lang:localStorage.getItem('daxi_lang')}));
+          if(beforeReload.store!==null) throw new Error('test mode still persists answers');
+          await resetPage.reload({waitUntil:'domcontentloaded'});
+          await resetPage.waitForSelector('#intro:not([hidden])');
+          await resetPage.locator('[data-intro-skip]').click();
+          await resetPage.waitForSelector('.chooser-page');
+          const resetState=await resetPage.evaluate(()=>({
+            hasQuiz:!!document.querySelector('.quiz-page'),
+            hasChooser:!!document.querySelector('.chooser-page'),
+            path:new URL(location.href).searchParams.get('path'),
+            store:localStorage.getItem('daxi_site_state_v2')
+          }));
+          console.log('RESET',resetState);
+          if(!resetState.hasChooser || resetState.hasQuiz || resetState.store!==null) throw new Error('reload did not reset the questionnaire');
+          await resetContext.close();
+
           const aboutContext=await browser.newContext({viewport:{width:390,height:844}});
           const aboutPage=await aboutContext.newPage();
           await aboutPage.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});

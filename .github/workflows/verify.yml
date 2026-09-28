@@ -109,7 +109,7 @@ jobs:
           await aboutPage.waitForSelector('#intro:not([hidden])');
           await aboutPage.locator('[data-intro-skip]').click();
           await aboutPage.waitForSelector('.chooser-page');
-          await aboutPage.locator('.chooser-about').click();
+          await aboutPage.locator('.chooser-explore').click();
           await aboutPage.waitForSelector('#partners');
           const landing=await aboutPage.evaluate(()=>({
             flowLocked:document.body.classList.contains('flow-lock'),
@@ -130,6 +130,16 @@ jobs:
           if(landing.flowLocked) throw new Error('general landing remained flow-locked');
           if(landing.homeHidden || !landing.partners || !landing.company || !landing.directions || !landing.app || !landing.driverMap || !landing.community || !landing.service) throw new Error('general landing sections missing');
           if(landing.appDetails<6 || landing.directionsCount<6) throw new Error('general landing lost service/app detail cards');
+          await aboutPage.locator('[data-scroll="driver-map"]').first().click();
+          await aboutPage.waitForFunction(()=>Math.abs(document.querySelector('#driver-map').getBoundingClientRect().top)<180);
+          await aboutPage.locator('[data-map-cat="coffee"]').click();
+          const mapState=await aboutPage.evaluate(()=>({
+            active:document.querySelector('[data-map-cat="coffee"]').classList.contains('active'),
+            coffeeMuted:document.querySelector('[data-map-point="coffee"]').classList.contains('muted'),
+            restMuted:document.querySelector('[data-map-point="rest"]').classList.contains('muted')
+          }));
+          console.log('MAP',mapState);
+          if(!mapState.active || mapState.coffeeMuted || !mapState.restMuted) throw new Error('driver map filtering is broken');
           if(landing.scrollH<=landing.innerH) throw new Error('general landing is not browseable');
           await aboutPage.locator('[data-resume-flow]').first().click();
           await aboutPage.waitForSelector('.chooser-page');
@@ -151,6 +161,9 @@ jobs:
           await page.waitForSelector('#intro:not([hidden])');
           await page.locator('[data-intro-skip]').click();
           await page.waitForSelector('.chooser-page');
+          const exploreVisible=await page.locator('.chooser-explore').isVisible();
+          const headerAboutVisible=await page.locator('.flow-about-link').isVisible();
+          if(!exploreVisible || !headerAboutVisible) throw new Error('Daxi explore entry is not visible in funnel');
           await page.locator('[data-path="driver"]').click();
           await page.waitForSelector('.quiz-page');
           let metrics=await page.evaluate(()=>({w:innerWidth,scrollW:document.documentElement.scrollWidth,scrollH:document.body.scrollHeight,h:innerHeight}));

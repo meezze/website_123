@@ -21,6 +21,7 @@
   };
   const defaults = () => ({hours:8,days:5,fleet:5,classes:[]});
   let state = {lang:'ru', view:'choose', path:null, step:0, answers:defaults(), returning:false, utm:{}};
+  let browseReturnView = 'choose';
   let introTimer = 0;
   let lenis;
 
@@ -89,7 +90,10 @@
       header.innerHTML = `
         <div class="nav-inner flow-nav">
           <div class="wordmark-static">${logoSvg(false)}</div>
-          <div class="nav-actions"><button class="lang-switch" data-lang aria-label="Language">${state.lang.toUpperCase()} <span>/</span> ${t('other')}</button></div>
+          <div class="flow-nav-actions">
+            <button class="flow-about-link" data-about>${state.lang==='ru'?'О Daxi':'Despre Daxi'}</button>
+            <button class="lang-switch" data-lang aria-label="Language">${state.lang.toUpperCase()} <span>/</span> ${t('other')}</button>
+          </div>
         </div>`;
       return;
     }
@@ -98,12 +102,13 @@
         <button class="wordmark" data-go-home aria-label="Daxi">${logoSvg(false)}</button>
         <nav class="nav-links" aria-label="Navigation">
           <button data-scroll="how">${t('navHow')}</button>
+          <button data-scroll="partners">${state.lang==='ru'?'Партнёры':'Parteneri'}</button>
           <button data-scroll="app">${t('navApp')}</button>
           <button data-scroll="faq">${t('navFaq')}</button>
         </nav>
         <div class="nav-actions">
           <button class="lang-switch" data-lang aria-label="Language">${state.lang.toUpperCase()} <span>/</span> ${t('other')}</button>
-          <button class="pill pill-black" data-app>${t('navStart')} <span>↗</span></button>
+          <button class="pill pill-black" data-resume-flow>${state.lang==='ru'?'Подобрать условия':'Aleg condițiile'} <span>↗</span></button>
           <button class="menu-button" data-menu aria-label="Menu"><i></i><i></i></button>
         </div>
       </div>`;
@@ -122,7 +127,7 @@
             <span class="kicker">${t('heroEyebrow')}</span>
             <h1 class="mega"><span>${t('heroA')}</span><span class="amber">${t('heroB')}</span></h1>
             <p>${t('heroText')}</p>
-            <div class="hero-actions"><button class="pill pill-amber" data-scroll="paths">${t('heroCta')} <b>→</b></button><button class="text-link light" data-app>${t('heroApp')} ↗</button></div>
+            <div class="hero-actions"><button class="pill pill-amber" data-resume-flow>${state.lang==='ru'?'Подобрать свой вариант':'Aleg varianta mea'} <b>→</b></button><button class="text-link light" data-app>${t('heroApp')} ↗</button></div>
           </div>
           <div class="hero-object" data-reveal>
             <div class="phone phone-tilt">${appScreen('finance')}</div>
@@ -147,30 +152,55 @@
         </div>
         <div class="how-footer"><div class="scroll-hint"><span></span>${state.lang==='ru'?'Листай':'Glisează'}</div><button class="pill pill-black" data-scroll="paths">${t('calculate')} →</button></div>
       </section>
+      <section class="partners-section dark" id="partners"><div class="section">
+        <div class="partners-head">
+          <div><span class="kicker">02 / ${state.lang==='ru'?'ПАРТНЁРЫ И СЕРВИСЫ':'PARTENERI ȘI SERVICII'}</span><h2 class="display light-title">${state.lang==='ru'?'Заказы приходят из сервисов, которые уже знают пассажиры.':'Comenzile vin din serviciile pe care pasagerii le cunosc deja.'}</h2></div>
+          <p>${state.lang==='ru'?'В Молдове водитель подключается к агрегаторам через лицензированный таксопарк. Daxi оформляет подключение и берёт на себя обязательную часть работы вокруг поездок.':'În Moldova, șoferul se conectează la agregatoare printr-un parc de taxi autorizat. Daxi pregătește conectarea și preia partea obligatorie din jurul curselor.'}</p>
+        </div>
+        <div class="partner-rail">
+          <article><span>01</span><strong>Yandex</strong><small>${state.lang==='ru'?'сервис заказов':'serviciu de comenzi'}</small></article>
+          <article><span>02</span><strong>Bolt</strong><small>${state.lang==='ru'?'сервис заказов':'serviciu de comenzi'}</small></article>
+          <article><span>03</span><strong>Letz</strong><small>${state.lang==='ru'?'сервис заказов':'serviciu de comenzi'}</small></article>
+          <article class="partner-daxi"><span>04</span><strong>Daxi</strong><small>${state.lang==='ru'?'лицензия, документы, сервис, поддержка':'licență, acte, service, suport'}</small></article>
+        </div>
+        <p class="partner-note">${state.lang==='ru'?'Названия Yandex, Bolt и Letz показаны как сервисы, из которых водители получают заказы через Daxi. Логотипы сторонних компаний не используются.':'Numele Yandex, Bolt și Letz sunt afișate ca servicii din care șoferii primesc comenzi prin Daxi. Nu folosim logouri ale companiilor terțe.'}</p>
+      </div></section>
+      <section class="company-detail section" id="company">
+        <div class="company-detail-head"><span class="kicker">03 / ${state.lang==='ru'?'ЧТО DAXI БЕРЁТ НА СЕБЯ':'CE PREIA DAXI'}</span><h2 class="display">${state.lang==='ru'?'Ты работаешь. Система вокруг поездок уже собрана.':'Tu lucrezi. Sistemul din jurul curselor este deja construit.'}</h2><p>${state.lang==='ru'?'Daxi работает как лицензированный таксопарк в Кишинёве. Мы оформляем обязательные документы, поддерживаем машину и показываем деньги в одном приложении.':'Daxi funcționează ca parc de taxi autorizat în Chișinău. Pregătim actele obligatorii, susținem mașina și arătăm banii într-o singură aplicație.'}</p></div>
+        <div class="company-fact-grid">
+          <article><span>01</span><h3>${state.lang==='ru'?'Лицензия и документы':'Licență și acte'}</h3><p>${state.lang==='ru'?'Лицензирование, кассовый аппарат, документы и страховка.':'Licențiere, aparat fiscal, acte și asigurare.'}</p></article>
+          <article><span>02</span><h3>5–10 ${state.lang==='ru'?'дней':'zile'}</h3><p>${state.lang==='ru'?'Столько занимает легализация своей машины в стандартной ситуации.':'Atât durează legalizarea mașinii proprii într-o situație standard.'}</p></article>
+          <article><span>03</span><h3>${state.lang==='ru'?'Свой автосервис':'Service propriu'}</h3><p>${state.lang==='ru'?'Специализация на гибридах и скидки для водителей Daxi.':'Specializare în hibride și reduceri pentru șoferii Daxi.'}</p></article>
+          <article><span>04</span><h3>24/7</h3><p>${state.lang==='ru'?'Поддержка для водителей. В офисе можно спокойно решить вопрос и выпить кофе.':'Suport pentru șoferi. În birou puteți rezolva problema și bea o cafea.'}</p></article>
+          <article><span>05</span><h3>2 000 lei</h3><p>${state.lang==='ru'?'Бонус за водителя, который приходит со своей машиной. Условия подтвердит менеджер.':'Bonus pentru un șofer care vine cu mașina proprie. Condițiile sunt confirmate de manager.'}</p></article>
+          <article><span>06</span><h3>Daxi App</h3><p>${state.lang==='ru'?'Поездки, выплаты, бонусы, уровни комиссии, расходы по машине и баланс владельца.':'Curse, plăți, bonusuri, niveluri de comision, cheltuieli auto și soldul proprietarului.'}</p></article>
+        </div>
+        <div class="company-app-flow"><div><span class="kicker">${state.lang==='ru'?'КАК НАЧАТЬ':'CUM ÎNCEPI'}</span><h3>${state.lang==='ru'?'Регистрация начинается в приложении.':'Înregistrarea începe în aplicație.'}</h3><p>${state.lang==='ru'?'После регистрации бот Daxi пишет в WhatsApp, Viber или Telegram и помогает продолжить подключение.':'După înregistrare, botul Daxi scrie în WhatsApp, Viber sau Telegram și ajută la continuarea conectării.'}</p></div><button class="pill pill-black" data-app>${state.lang==='ru'?'Открыть приложение':'Deschid aplicația'} ↗</button></div>
+      </section>
       <section class="paths section" id="paths">
-        <span class="kicker">02 / ${state.lang==='ru'?'ВАШ ВАРИАНТ':'VARIANTA DVS.'}</span>
+        <span class="kicker">04 / ${state.lang==='ru'?'ВАШ ВАРИАНТ':'VARIANTA DVS.'}</span>
         <h2 class="display">${t('who')}</h2><p class="lead">${t('whoSub')}</p>
         <div class="path-grid">
           ${pathCard('driver','01')}${pathCard('car','02')}${pathCard('owner','03')}${pathCard('business','04')}
         </div>
       </section>
       <section class="pillars dark" id="pillars"><div class="section">
-        <span class="kicker">03 / DAXI</span><h2 class="display light-title" data-reveal>${t('pillarsTitle')}</h2>
+        <span class="kicker">05 / DAXI</span><h2 class="display light-title" data-reveal>${t('pillarsTitle')}</h2>
         <div class="pillar-grid">${pillars.map((p,i)=>`<article class="pillar-card ${i===0?'wide':''}" data-reveal><span class="pillar-index">0${i+1}</span><div><h3>${t(p)}</h3><p>${t(p+'d')}</p></div>${i===0?'<strong class="zero-big">0</strong>':''}</article>`).join('')}</div>
       </div></section>
       <section class="app-section" id="app"><div class="section">
-        <div class="split-head"><div><span class="kicker">04 / DAXI APP</span><h2 class="display" data-reveal>${t('appTitle')}</h2></div><div><p>${t('appText')}</p><button class="pill pill-black" data-app>${t('navStart')} ↗</button></div></div>
+        <div class="split-head"><div><span class="kicker">06 / DAXI APP</span><h2 class="display" data-reveal>${t('appTitle')}</h2></div><div><p>${t('appText')}</p><button class="pill pill-black" data-app>${t('navStart')} ↗</button></div></div>
         <div class="phones-row">
           ${appShowcase('finance',t('finance'),'01')}${appShowcase('bonus',t('bonus'),'02')}${appShowcase('pulse',t('pulse'),'03')}${appShowcase('owner',t('ownerBalance'),'04')}
         </div>
       </div></section>
       <section class="services section">
-        <article class="feature"><div class="feature-copy"><span class="kicker">05 / SERVICE</span><h2>${t('serviceTitle')}</h2><p>${t('serviceText')}</p><button class="pill pill-outline" data-path="driver">${t('calculate')} →</button></div><div class="media-placeholder service-media"><span>${state.lang==='ru'?'МЕСТО ДЛЯ ФОТО СЕРВИСА DAXI':'LOC PENTRU FOTO SERVICE DAXI'}</span></div></article>
-        <article class="feature feature-card"><div class="feature-copy"><span class="kicker">06 / BUYOUT</span><h2>${t('buyoutTitle')}</h2><p>${t('buyoutText')}</p><button class="pill pill-black" data-path="car">${t('calculate')} →</button></div><img src="https://daxi.md/assets/themes/daxi/img/catalog/10.webp" alt="Volkswagen ID.4 Daxi" loading="lazy" onerror="this.style.display='none'"/></article>
-        <div class="two-cards"><article><span class="kicker">07 / OWNER</span><h2>${t('ownersTitle')}</h2><p>${t('ownersText')}</p><button class="text-link" data-path="owner">${t('calculate')} ↗</button></article><article class="dark-card"><span class="kicker">08 / BUSINESS</span><h2>${t('businessTitle')}</h2><p>${t('businessText')}</p><button class="text-link light" data-path="business">${t('calculate')} ↗</button></article></div>
+        <article class="feature"><div class="feature-copy"><span class="kicker">07 / SERVICE</span><h2>${t('serviceTitle')}</h2><p>${t('serviceText')}</p><button class="pill pill-outline" data-path="driver">${t('calculate')} →</button></div><div class="media-placeholder service-media"><span>${state.lang==='ru'?'МЕСТО ДЛЯ ФОТО СЕРВИСА DAXI':'LOC PENTRU FOTO SERVICE DAXI'}</span></div></article>
+        <article class="feature feature-card"><div class="feature-copy"><span class="kicker">08 / BUYOUT</span><h2>${t('buyoutTitle')}</h2><p>${t('buyoutText')}</p><button class="pill pill-black" data-path="car">${t('calculate')} →</button></div><img src="https://daxi.md/assets/themes/daxi/img/catalog/10.webp" alt="Volkswagen ID.4 Daxi" loading="lazy" onerror="this.style.display='none'"/></article>
+        <div class="two-cards"><article><span class="kicker">09 / OWNER</span><h2>${t('ownersTitle')}</h2><p>${t('ownersText')}</p><button class="text-link" data-path="owner">${t('calculate')} ↗</button></article><article class="dark-card"><span class="kicker">10 / BUSINESS</span><h2>${t('businessTitle')}</h2><p>${t('businessText')}</p><button class="text-link light" data-path="business">${t('calculate')} ↗</button></article></div>
       </section>
-      <section class="faq section" id="faq"><div class="faq-title"><span class="kicker">09 / FAQ</span><h2 class="display">${t('faqTitle')}</h2><p>${t('faqSub')}</p></div><div class="faq-list">${[1,2,3,4,5].map(i=>`<details><summary>${t('faq'+i)}<b>+</b></summary><p>${t('faq'+i+'a')}</p></details>`).join('')}</div></section>
-      <section class="referral dark"><div class="section referral-grid"><div><span class="kicker">10 / REFERRAL</span><h2>${t('referralTitle')}</h2><p>${t('referralText')}</p></div><div class="referral-num"><strong>${fmt(C.facts.referralBonus)}</strong><span>lei</span><button class="pill pill-amber" data-path="driver">${t('calculate')} →</button></div></div></section>`;
+      <section class="faq section" id="faq"><div class="faq-title"><span class="kicker">11 / FAQ</span><h2 class="display">${t('faqTitle')}</h2><p>${t('faqSub')}</p></div><div class="faq-list">${[1,2,3,4,5].map(i=>`<details><summary>${t('faq'+i)}<b>+</b></summary><p>${t('faq'+i+'a')}</p></details>`).join('')}</div></section>
+      <section class="referral dark"><div class="section referral-grid"><div><span class="kicker">12 / REFERRAL</span><h2>${t('referralTitle')}</h2><p>${t('referralText')}</p></div><div class="referral-num"><strong>${fmt(C.facts.referralBonus)}</strong><span>lei</span><button class="pill pill-amber" data-path="driver">${t('calculate')} →</button></div></div></section>`;
   }
 
   function renderFlow(){
@@ -205,6 +235,7 @@
           ${cards.map(([p,title,sub,n])=>`<button class="chooser-card" data-path="${p}"><span class="chooser-num">${n}</span><div><strong>${title}</strong><small>${sub}</small></div><i>↗</i></button>`).join('')}
         </div>
         <p class="chooser-note">${ru?'Без звонка и регистрации. Сначала просто разберём твой вариант.':'Fără apel și înregistrare. Mai întâi vedem varianta potrivită.'}</p>
+        <button class="chooser-about" data-about><span>${ru?'Хочу сначала подробнее узнать о Daxi':'Vreau mai întâi să aflu mai multe despre Daxi'}</span><i>↗</i></button>
       </section>
     </main>`;
     requestAnimationFrame(()=>animateFlowIn());
@@ -395,6 +426,8 @@
   function bindGlobal(){
     document.addEventListener('click', e => {
       const lang=e.target.closest('[data-lang]'); if(lang){state.lang=state.lang==='ru'?'ro':'ru';localStorage.setItem(LANG_KEY,state.lang);renderAll();return;}
+      const about=e.target.closest('[data-about]'); if(about){browseReturnView=state.view==='home'?(state.path?'quiz':'choose'):state.view;state.view='home';renderAll();scrollTop();return;}
+      const resume=e.target.closest('[data-resume-flow]'); if(resume){state.view=state.path?(browseReturnView==='result'?'result':'quiz'):'choose';renderAll();scrollTop();return;}
       const path=e.target.closest('[data-path]'); if(path){selectPath(path.dataset.path);return;}
       const scroll=e.target.closest('[data-scroll]'); if(scroll){ if(state.view!=='home'){state.path=null;state.step=0;state.answers=defaults();state.view='choose';renderAll();scrollTop();} else scrollToId(scroll.dataset.scroll); return; }
       if(e.target.closest('[data-go-home]')){state.path=null;state.step=0;state.answers=defaults();state.view='choose';renderAll();scrollTop();return;}

@@ -2,7 +2,7 @@
   'use strict';
   const C = window.DAXI_CONFIG;
   const DICT = window.DAXI_I18N;
-  const STORE = 'daxi_site_state_v1';
+  const STORE = 'daxi_site_state_v2';
   const LANG_KEY = 'daxi_lang';
   const INTRO_KEY = 'daxi_intro_seen_v2';
   const PATHS = ['driver','car','owner','business'];

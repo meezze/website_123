@@ -26,7 +26,7 @@ jobs:
           sleep 2
       - name: Verify mobile fixed flow
         run: |
-          cat > /tmp/verify.mjs <<'JS'
+          cat > verify.mjs <<'JS'
           import { chromium } from 'playwright';
           const browser = await chromium.launch({headless:true});
           const page = await browser.newPage({viewport:{width:360,height:800}});
@@ -78,4 +78,4 @@ jobs:
           }
           await browser.close();
           JS
-          node /tmp/verify.mjs
+          node verify.mjs

@@ -5,7 +5,7 @@
   const STORE = 'daxi_site_state_v2';
   const LANG_KEY = 'daxi_lang';
   const INTRO_KEY = 'daxi_intro_seen_v2';
-  const TEST_RESET_EACH_RELOAD = true;
+  const TEST_RESET_EACH_RELOAD = true; // test mode: no answer persistence
   const PATHS = ['driver','car','owner','business'];
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];

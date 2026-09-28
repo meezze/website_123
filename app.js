@@ -5,6 +5,7 @@
   const STORE = 'daxi_site_state_v2';
   const LANG_KEY = 'daxi_lang';
   const INTRO_KEY = 'daxi_intro_seen_v2';
+  const TEST_RESET_EACH_RELOAD = true;
   const PATHS = ['driver','car','owner','business'];
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
@@ -27,38 +28,50 @@
 
   function init() {
     const params = new URLSearchParams(location.search);
-    const routePath = PATHS.includes(location.pathname.split('/').filter(Boolean).pop()) ? location.pathname.split('/').filter(Boolean).pop() : null;
-    const queryPath = PATHS.includes(params.get('path')) ? params.get('path') : null;
-    const saved = loadState();
     const savedLang = localStorage.getItem(LANG_KEY);
     state.lang = ['ru','ro'].includes(params.get('lang')) ? params.get('lang') : (['ru','ro'].includes(savedLang) ? savedLang : 'ru');
     state.utm = Object.fromEntries([...params.entries()].filter(([k]) => k.startsWith('utm_')));
-    const forced = routePath || queryPath;
-    if (forced) {
-      state.path = forced;
-      if (saved && saved.path === forced) {
+
+    if (TEST_RESET_EACH_RELOAD) {
+      localStorage.removeItem(STORE);
+      localStorage.removeItem(INTRO_KEY);
+      state.path = null;
+      state.step = 0;
+      state.answers = defaults();
+      state.returning = false;
+      state.view = 'choose';
+    } else {
+      const routePath = PATHS.includes(location.pathname.split('/').filter(Boolean).pop()) ? location.pathname.split('/').filter(Boolean).pop() : null;
+      const queryPath = PATHS.includes(params.get('path')) ? params.get('path') : null;
+      const saved = loadState();
+      const forced = routePath || queryPath;
+      if (forced) {
+        state.path = forced;
+        if (saved && saved.path === forced) {
+          state.answers = {...defaults(), ...saved.answers};
+          state.step = Math.min(saved.step || 0, steps[forced].length - 1);
+          state.view = saved.completed ? 'result' : 'quiz';
+          state.returning = !!saved.completed;
+        } else {
+          state.answers = defaults();
+          state.view = 'quiz';
+        }
+      } else if (saved && PATHS.includes(saved.path)) {
+        state.path = saved.path;
         state.answers = {...defaults(), ...saved.answers};
-        state.step = Math.min(saved.step || 0, steps[forced].length - 1);
+        state.step = Math.min(saved.step || 0, steps[saved.path].length - 1);
         state.view = saved.completed ? 'result' : 'quiz';
         state.returning = !!saved.completed;
+        state.utm = {...saved.utm, ...state.utm};
       } else {
-        state.answers = defaults();
-        state.view = 'quiz';
+        state.view = 'choose';
       }
-    } else if (saved && PATHS.includes(saved.path)) {
-      state.path = saved.path;
-      state.answers = {...defaults(), ...saved.answers};
-      state.step = Math.min(saved.step || 0, steps[saved.path].length - 1);
-      state.view = saved.completed ? 'result' : 'quiz';
-      state.returning = !!saved.completed;
-      state.utm = {...saved.utm, ...state.utm};
-    } else {
-      state.view = 'choose';
     }
+
     document.documentElement.lang = state.lang;
     renderAll();
     initMotion();
-    if (!localStorage.getItem(INTRO_KEY)) showIntro();
+    if (TEST_RESET_EACH_RELOAD || !localStorage.getItem(INTRO_KEY)) showIntro();
     bindGlobal();
     installPixels();
   }
@@ -66,6 +79,7 @@
   function loadState(){ try { return JSON.parse(localStorage.getItem(STORE) || 'null'); } catch { return null; } }
   function persist(completed = state.view === 'result') {
     localStorage.setItem(LANG_KEY, state.lang);
+    if (TEST_RESET_EACH_RELOAD) return;
     if (!state.path) return;
     localStorage.setItem(STORE, JSON.stringify({version:C.schemaVersion, lang:state.lang, path:state.path, step:state.step, answers:state.answers, completed, utm:state.utm, savedAt:Date.now()}));
   }
@@ -471,7 +485,7 @@
     el.innerHTML=`<div class="intro-dark"><div class="intro-controls"><button data-intro-lang>${state.lang.toUpperCase()} / ${t('other')}</button><button data-intro-skip>${t('skip')}</button></div><div class="intro-route">${routeSvg('intro')}</div><div class="intro-copy"><div class="intro-logo">${logoSvg(true)}</div><h1><span>${t('introA')}</span><span>${t('introB')}</span></h1><ul><li>${t('intro1')}</li><li>${t('intro2')}</li><li>${t('intro3')}</li></ul><div class="intro-handoff"><i></i><span>${state.lang==='ru'?'Подбираем твой путь':'Pregătim traseul tău'}</span></div></div></div>`;
     const finish=(reason)=>{
       if(closing)return; closing=true; clearTimeout(introTimer);
-      localStorage.setItem(INTRO_KEY,'1'); track('intro_continue',{reason});
+      if (!TEST_RESET_EACH_RELOAD) localStorage.setItem(INTRO_KEY,'1'); track('intro_continue',{reason});
       const done=()=>{el.hidden=true;document.body.style.overflow='';requestAnimationFrame(()=>animateFlowIn());};
       if(window.gsap&&!reduced()) gsap.to(el,{opacity:0,scale:1.008,duration:.5,ease:'power2.inOut',onComplete:done}); else done();
     };

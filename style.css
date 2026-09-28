@@ -133,3 +133,93 @@
   .chooser-card,.chip,.question-next,.picker-button,.class-card{transition:none!important}
   .intro-handoff i:after{animation:none!important;transform:none!important}
 }
+
+
+/* FULLSCREEN QUESTIONNAIRE MODE: no landing scroll while qualifying */
+body.flow-lock{overflow:hidden!important;height:100dvh;background:#fff}
+body.flow-lock #home{display:none!important}
+body.flow-lock .site-header{position:fixed!important;top:0;left:0;right:0;z-index:90}
+body.flow-lock #flow{position:fixed;inset:82px 0 0;z-index:20;display:block!important;overflow:hidden;background:#fff}
+body.flow-lock #footer{display:none!important}
+body.flow-lock .chooser-page,
+body.flow-lock .quiz-page{height:100%;min-height:0!important;max-height:100%;overflow:hidden}
+body.flow-lock .result{height:100%;min-height:0!important;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+body.flow-lock .chooser-intro,
+body.flow-lock .chooser-panel,
+body.flow-lock .quiz-context,
+body.flow-lock .quiz-panel{min-height:0!important;height:100%}
+body.flow-lock .quiz-context{position:relative;top:auto}
+body.flow-lock .quiz-panel{overflow-y:auto;overscroll-behavior:contain}
+body.flow-lock .question{margin-top:clamp(32px,6vh,68px)}
+body.flow-lock .chooser-panel{overflow:hidden}
+body.flow-lock .chooser-page{animation:none}
+body.flow-lock .result-shell{padding-top:44px;padding-bottom:72px}
+
+@media(max-width:760px){
+  body.flow-lock #flow{inset:64px 0 0}
+  body.flow-lock .chooser-page{height:100%;display:grid;grid-template-rows:minmax(190px,34%) minmax(0,66%);overflow:hidden}
+  body.flow-lock .chooser-intro{height:100%;padding:22px 18px 20px;align-items:flex-end;overflow:hidden}
+  body.flow-lock .chooser-intro-inner{max-width:100%}
+  body.flow-lock .chooser-intro .kicker{font-size:8px}
+  body.flow-lock .chooser-intro h1{font-size:clamp(36px,10vw,44px);line-height:.94;margin:12px 0 10px;max-width:330px}
+  body.flow-lock .chooser-intro p{font-size:11px;line-height:1.45;max-width:330px}
+  body.flow-lock .chooser-facts{margin-top:12px;gap:5px;flex-wrap:nowrap}
+  body.flow-lock .chooser-facts span{padding:5px 7px;font-size:7px;white-space:nowrap}
+  body.flow-lock .chooser-facts b{font-size:9px}
+  body.flow-lock .chooser-panel{height:100%;padding:18px 16px 18px;display:flex;overflow:hidden}
+  body.flow-lock .chooser-top{margin-bottom:12px;padding-bottom:9px;flex:0 0 auto}
+  body.flow-lock .chooser-top span{font-size:30px}
+  body.flow-lock .chooser-top small{font-size:7px}
+  body.flow-lock .chooser-cards{gap:6px;flex:1;min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr))}
+  body.flow-lock .chooser-card{min-height:0;height:100%;border-radius:15px;grid-template-columns:30px 1fr 26px;gap:10px;padding:10px 12px}
+  body.flow-lock .chooser-num{width:28px;height:28px;font-size:8px}
+  body.flow-lock .chooser-card strong{font-size:clamp(16px,4.8vw,19px)}
+  body.flow-lock .chooser-card small{font-size:8px;margin-top:3px;line-height:1.25}
+  body.flow-lock .chooser-card i{width:25px;height:25px;font-size:10px}
+  body.flow-lock .chooser-note{font-size:8px;margin-top:8px;flex:0 0 auto}
+  body.flow-lock .quiz-page{display:block;height:100%;overflow:hidden}
+  body.flow-lock .quiz-context{display:none!important}
+  body.flow-lock .quiz-panel{height:100%;padding:12px 18px 16px;display:flex;flex-direction:column;overflow:hidden}
+  body.flow-lock .quiz-bar{position:relative;top:auto;flex:0 0 auto;padding:4px 0 8px;background:#fff;backdrop-filter:none}
+  body.flow-lock .progress{position:relative;top:auto;flex:0 0 auto;margin:0}
+  body.flow-lock .question{flex:1;min-height:0;margin:0;padding-top:clamp(20px,4vh,34px);display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+  body.flow-lock .question::-webkit-scrollbar{display:none}
+  body.flow-lock .question>.kicker{flex:0 0 auto}
+  body.flow-lock .question>h1{font-size:clamp(33px,9.5vw,40px);line-height:.98;margin:10px 0 20px;flex:0 0 auto}
+  body.flow-lock .question-body{min-height:0!important;flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:4px}
+  body.flow-lock .chips{gap:8px}
+  body.flow-lock .chip{min-height:60px;padding:13px 15px;border-radius:14px}
+  body.flow-lock .chip{font-size:14px}
+  body.flow-lock .question-next{position:relative;bottom:auto;flex:0 0 auto;margin-top:14px;min-height:50px;box-shadow:0 10px 24px #00000012}
+  body.flow-lock .question-note{flex:0 0 auto;margin:8px 0 0;font-size:8px}
+  body.flow-lock .car-pickers{gap:10px}
+  body.flow-lock .picker>label{font-size:11px;margin-bottom:5px}
+  body.flow-lock .picker-button{min-height:48px;padding:10px 13px}
+  body.flow-lock .picker-pop{top:62px;max-height:220px}
+  body.flow-lock .class-grid{gap:7px}
+  body.flow-lock .class-card .car-silhouette,
+  body.flow-lock .class-card>div:first-child{height:76px}
+  body.flow-lock .class-card>div:nth-child(2){padding:9px 10px}
+  body.flow-lock .class-card strong{font-size:12px}
+  body.flow-lock .class-card small{font-size:8px}
+  body.flow-lock .schedule-presets{margin-bottom:12px}
+  body.flow-lock .schedule-presets button{padding:8px 11px;min-height:38px;font-size:10px}
+  body.flow-lock .slider-row{margin:14px 0}
+  body.flow-lock .slider-row label{margin-bottom:10px}
+  body.flow-lock .slider-row strong{font-size:24px}
+  body.flow-lock .fleet-value{margin-bottom:16px}
+  body.flow-lock .fleet-value strong{font-size:72px}
+  body.flow-lock .result{height:100%;overflow-y:auto}
+}
+@media(max-width:390px) and (max-height:700px){
+  body.flow-lock .chooser-page{grid-template-rows:31% 69%}
+  body.flow-lock .chooser-intro p{display:none}
+  body.flow-lock .chooser-facts{margin-top:8px}
+  body.flow-lock .chooser-card small{display:none}
+  body.flow-lock .chooser-card{grid-template-columns:28px 1fr 24px}
+  body.flow-lock .chooser-panel{padding-top:12px}
+  body.flow-lock .chooser-note{display:none}
+  body.flow-lock .question{padding-top:14px}
+  body.flow-lock .question>h1{font-size:32px;margin:8px 0 14px}
+  body.flow-lock .chip{min-height:54px;padding:11px 13px}
+}

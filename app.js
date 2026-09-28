@@ -35,6 +35,9 @@
     if (TEST_RESET_EACH_RELOAD) {
       localStorage.removeItem(STORE);
       localStorage.removeItem(INTRO_KEY);
+      const cleanUrl = new URL(location.href);
+      cleanUrl.searchParams.delete('path');
+      history.replaceState({}, '', cleanUrl);
       state.path = null;
       state.step = 0;
       state.answers = defaults();

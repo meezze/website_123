@@ -130,7 +130,7 @@ jobs:
           if(landing.flowLocked) throw new Error('general landing remained flow-locked');
           if(landing.homeHidden || !landing.partners || !landing.company || !landing.directions || !landing.app || !landing.driverMap || !landing.community || !landing.service) throw new Error('general landing sections missing');
           if(landing.appDetails<6 || landing.directionsCount<6) throw new Error('general landing lost service/app detail cards');
-          await aboutPage.locator('[data-scroll="driver-map"]').first().click();
+          await aboutPage.locator('.landing-index [data-scroll="driver-map"]').click();
           await aboutPage.waitForFunction(()=>Math.abs(document.querySelector('#driver-map').getBoundingClientRect().top)<180);
           await aboutPage.locator('[data-map-cat="coffee"]').click();
           const mapState=await aboutPage.evaluate(()=>({

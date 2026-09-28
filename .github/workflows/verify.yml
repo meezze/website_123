@@ -171,9 +171,13 @@ jobs:
           for(const p of ['driver','car','owner','business']){
             const ctx=await browser.newContext({viewport:{width:390,height:844}});
             const pg=await ctx.newPage();
-            await pg.goto('http://127.0.0.1:4173/?path='+p,{waitUntil:'domcontentloaded'});
+            await pg.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
             await pg.evaluate(()=>localStorage.clear());
             await pg.reload({waitUntil:'domcontentloaded'});
+            await pg.waitForSelector('#intro:not([hidden])');
+            await pg.locator('[data-intro-skip]').click();
+            await pg.waitForSelector('.chooser-page');
+            await pg.locator('[data-path="'+p+'"]').click();
             await pg.waitForSelector('.quiz-page');
             const step=await pg.locator('#question').getAttribute('data-step');
             const x=await pg.evaluate(()=>({w:innerWidth,scrollW:document.documentElement.scrollWidth}));

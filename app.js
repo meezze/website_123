@@ -121,6 +121,7 @@
           <button data-scroll="how">${t('navHow')}</button>
           <button data-scroll="partners">${state.lang==='ru'?'Партнёры':'Parteneri'}</button>
           <button data-scroll="app">${t('navApp')}</button>
+          <button data-scroll="driver-map">${state.lang==='ru'?'Карта':'Hartă'}</button>
           <button data-scroll="faq">${t('navFaq')}</button>
         </nav>
         <div class="nav-actions">
@@ -158,6 +159,13 @@
           <div><strong>${C.facts.support}</strong><span>${t('factSupport')}</span></div>
           <button data-scroll="how"><span>${t('navHow')}</span><b>↓</b></button>
         </div>
+      </section>
+      <section class="landing-index section" aria-label="${state.lang==='ru'?'Разделы Daxi':'Secțiunile Daxi'}">
+        <button data-scroll="app"><span>01</span><strong>${state.lang==='ru'?'Приложение':'Aplicație'}</strong><i>↘</i></button>
+        <button data-scroll="driver-map"><span>02</span><strong>${state.lang==='ru'?'Карта таксиста':'Harta șoferului'}</strong><i>↘</i></button>
+        <button data-scroll="service"><span>03</span><strong>${state.lang==='ru'?'Автосервис':'Service auto'}</strong><i>↘</i></button>
+        <button data-scroll="directions"><span>04</span><strong>${state.lang==='ru'?'Все услуги':'Toate serviciile'}</strong><i>↘</i></button>
+        <button data-scroll="community"><span>05</span><strong>${state.lang==='ru'?'Офис и поддержка':'Birou și suport'}</strong><i>↘</i></button>
       </section>
       <section class="how section" id="how">
         ${sectionHead('01',t('howTitle'),t('howSub'))}
@@ -352,8 +360,15 @@
         <div class="chooser-cards">
           ${cards.map(([p,title,sub,n])=>`<button class="chooser-card" data-path="${p}"><span class="chooser-num">${n}</span><div><strong>${title}</strong><small>${sub}</small></div><i>↗</i></button>`).join('')}
         </div>
-        <p class="chooser-note">${ru?'Без звонка и регистрации. Сначала просто разберём твой вариант.':'Fără apel și înregistrare. Mai întâi vedem varianta potrivită.'}</p>
-        <button class="chooser-about" data-about><span>${ru?'Хочу сначала подробнее узнать о Daxi':'Vreau mai întâi să aflu mai multe despre Daxi'}</span><i>↗</i></button>
+        <button class="chooser-explore" data-about>
+          <span class="chooser-explore-route"><i></i><i></i><i></i><i></i></span>
+          <span class="chooser-explore-copy">
+            <small>${ru?'ХОЧУ СНАЧАЛА РАЗОБРАТЬСЯ':'VREAU MAI ÎNTÂI SĂ ÎNȚELEG'}</small>
+            <strong>${ru?'Открыть весь Daxi':'Deschide tot Daxi'}</strong>
+            <em>${ru?'Приложение · карта таксиста · сервис · владельцы · B2B':'Aplicație · harta șoferului · service · proprietari · B2B'}</em>
+          </span>
+          <b>↗</b>
+        </button>
       </section>
     </main>`;
     requestAnimationFrame(()=>animateFlowIn());
@@ -362,7 +377,7 @@
   function renderQuiz(flow){
     const key = steps[state.path][state.step];
     const progress = ((state.step+1)/steps[state.path].length)*100;
-    flow.innerHTML = `<main class="quiz-page" id="main"><div class="quiz-context dark"><div>${logoSvg(true)}<span class="kicker">${t(pathKey[state.path])}</span><h2>${contextTitle()}</h2><p>${contextText()}</p></div><div class="quiz-zero"><strong>0<small> lei</small></strong><span>${t('p1d')}</span></div></div><div class="quiz-panel"><div class="quiz-bar"><button data-back>← ${t('back')}</button><span>${state.step+1} / ${steps[state.path].length}</span></div><div class="progress"><i style="width:${progress}%"></i></div><div class="question" id="question" data-step="${key}">${questionMarkup(key)}</div></div></main>`;
+    flow.innerHTML = `<main class="quiz-page" id="main"><div class="quiz-context dark"><div>${logoSvg(true)}<span class="kicker">${t(pathKey[state.path])}</span><h2>${contextTitle()}</h2><p>${contextText()}</p></div><div class="quiz-zero"><strong>0<small> lei</small></strong><span>${t('p1d')}</span></div></div><div class="quiz-panel"><div class="quiz-bar"><button data-back>← ${t('back')}</button><span>${state.step+1} / ${steps[state.path].length}</span></div><div class="progress"><i style="width:${progress}%"></i></div><button class="quiz-explore" data-about><span>${state.lang==='ru'?'О Daxi':'Despre Daxi'}</span><small>${state.lang==='ru'?'приложение · карта · сервис':'aplicație · hartă · service'}</small><b>↗</b></button><div class="question" id="question" data-step="${key}">${questionMarkup(key)}</div></div></main>`;
     bindQuestion(key);
     requestAnimationFrame(()=>animateFlowIn());
   }

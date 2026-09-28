@@ -157,7 +157,7 @@ body.flow-lock .result-shell{padding-top:44px;padding-bottom:72px}
 
 @media(max-width:760px){
   body.flow-lock #flow{inset:64px 0 0}
-  body.flow-lock .chooser-page{height:100%;display:grid;grid-template-rows:minmax(190px,34%) minmax(0,66%);overflow:hidden}
+  body.flow-lock .chooser-page{height:100%;width:100%;max-width:100vw;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(190px,34%) minmax(0,66%);overflow:hidden}
   body.flow-lock .chooser-intro{height:100%;padding:22px 18px 20px;align-items:flex-end;overflow:hidden}
   body.flow-lock .chooser-intro-inner{max-width:100%}
   body.flow-lock .chooser-intro .kicker{font-size:8px}
@@ -222,4 +222,14 @@ body.flow-lock .result-shell{padding-top:44px;padding-bottom:72px}
   body.flow-lock .question{padding-top:14px}
   body.flow-lock .question>h1{font-size:32px;margin:8px 0 14px}
   body.flow-lock .chip{min-height:54px;padding:11px 13px}
+}
+
+/* Mobile overflow guard */
+@media(max-width:760px){
+  body.flow-lock, body.flow-lock #flow, body.flow-lock .chooser-page, body.flow-lock .quiz-page{width:100%;max-width:100vw;overflow-x:hidden}
+  body.flow-lock .chooser-intro,body.flow-lock .chooser-panel,body.flow-lock .quiz-panel{width:100%;max-width:100%;min-width:0}
+  body.flow-lock .chooser-intro{grid-column:1}
+  body.flow-lock .chooser-panel{grid-column:1}
+  body.flow-lock .chooser-cards,body.flow-lock .chooser-card,body.flow-lock .chooser-card>div{min-width:0}
+  body.flow-lock .chooser-card strong,body.flow-lock .chooser-card small{overflow-wrap:anywhere}
 }

@@ -70,6 +70,8 @@
   }
 
   function renderAll(){
+    const inFlow = state.view !== 'home';
+    document.body.classList.toggle('flow-lock', inFlow);
     renderHeader();
     renderHome();
     renderFlow();
@@ -81,7 +83,7 @@
 
   function renderHeader(){
     const header=$('#site-header');
-    const focused = state.view==='choose' || state.view==='quiz';
+    const focused = state.view!=='home';
     header.classList.toggle('flow-mode',focused);
     if(focused){
       header.innerHTML = `
@@ -342,7 +344,7 @@
       <div class="result-layout"><div class="result-main">${!blocked && ['driver','car'].includes(state.path)?moneyMarkup(r)+comparisonMarkup(r):''}${state.path==='car'&&a.buyout==='yes'&&!blocked?buyoutMarkup():''}${state.path==='owner'?ownerMarkup(r):''}${state.path==='business'?businessMarkup(r):''}${!blocked?timelineMarkup():''}${checklistMarkup()}</div><aside>${conversionMarkup()}</aside></div>
     </div></main>`;
     bindResult(r);
-    requestAnimationFrame(()=>animateResult());
+    requestAnimationFrame(()=>{animateFlowIn();animateResult();});
   }
   function calculate(){
     const a=state.answers; let cls=a.class || 'standard';
@@ -394,8 +396,8 @@
     document.addEventListener('click', e => {
       const lang=e.target.closest('[data-lang]'); if(lang){state.lang=state.lang==='ru'?'ro':'ru';localStorage.setItem(LANG_KEY,state.lang);renderAll();return;}
       const path=e.target.closest('[data-path]'); if(path){selectPath(path.dataset.path);return;}
-      const scroll=e.target.closest('[data-scroll]'); if(scroll){ if(state.view!=='home'){state.view='home';renderAll();setTimeout(()=>scrollToId(scroll.dataset.scroll),20)} else scrollToId(scroll.dataset.scroll); return; }
-      if(e.target.closest('[data-go-home]')){state.view='home';renderAll();scrollTop();return;}
+      const scroll=e.target.closest('[data-scroll]'); if(scroll){ if(state.view!=='home'){state.path=null;state.step=0;state.answers=defaults();state.view='choose';renderAll();scrollTop();} else scrollToId(scroll.dataset.scroll); return; }
+      if(e.target.closest('[data-go-home]')){state.path=null;state.step=0;state.answers=defaults();state.view='choose';renderAll();scrollTop();return;}
       if(e.target.closest('[data-app]')){openApp();return;}
       if(e.target.closest('[data-menu]')) toggleMenu(true);
       if(e.target.closest('[data-menu-close]')) toggleMenu(false);
@@ -460,7 +462,7 @@
   function renderAppModal(){ const el=$('#app-modal');el.innerHTML=`<div class="modal-backdrop" data-modal-close></div><div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="app-title"><button class="modal-x" data-modal-close>×</button>${logoSvg(false)}<h2 id="app-title">${t('appModalTitle')}</h2><p>${t('appModalText')}</p><div class="store-buttons"><a href="${C.app.googlePlay}" target="_blank" data-store="google"><small>${state.lang==='ru'?'Скачать в':'Descarcă din'}</small><strong>${t('google')}</strong><b>↗</b></a><a href="${C.app.appStore}" target="_blank" data-store="apple"><small>${state.lang==='ru'?'Скачать в':'Descarcă din'}</small><strong>${t('apple')}</strong><b>↗</b></a></div></div>`; el.onclick=e=>{if(e.target.closest('[data-modal-close]')){el.hidden=true;document.body.style.overflow='';}const s=e.target.closest('[data-store]');if(s)track('register_app_click',{path:state.path||'general',store:s.dataset.store});}; }
   function toggleMenu(open){ const m=$('#menu');m.hidden=!open;if(open){m.innerHTML=`<div class="menu-panel"><button class="modal-x" data-menu-close>×</button>${logoSvg(false)}<button data-scroll="how">${t('navHow')} ↗</button><button data-scroll="paths">${t('calculate')} ↗</button><button data-scroll="app">${t('navApp')} ↗</button><button data-scroll="faq">${t('navFaq')} ↗</button></div>`;} }
 
-  function renderFooter(){ const footer=$('#footer'); const focused=state.view==='choose'||state.view==='quiz'; footer.hidden=focused; if(focused){footer.innerHTML='';return;} footer.innerHTML=`<div class="section footer-grid"><div class="footer-brand">${logoSvg(true)}<p>${t('footerLine')}</p></div><div><span class="kicker">${t('addressLabel')}</span><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(C.contact.address)}" target="_blank">${C.contact.address} ↗</a></div><div><span class="kicker">${t('phonesLabel')}</span>${C.contact.phones.map((p,i)=>`<a href="tel:${C.contact.phoneLinks[i]}">${p}</a>`).join('')}</div><div><span class="kicker">${t('socialLabel')}</span><a href="${C.contact.telegram}" target="_blank">Telegram ↗</a><a href="${C.contact.tiktok}" target="_blank">TikTok ↗</a></div></div><div class="section footer-bottom"><span>DAXI / CHIȘINĂU</span><button data-lang>${state.lang.toUpperCase()} / ${t('other')}</button></div>`; }
+  function renderFooter(){ const footer=$('#footer'); const focused=state.view!=='home'; footer.hidden=focused; if(focused){footer.innerHTML='';return;} footer.innerHTML=`<div class="section footer-grid"><div class="footer-brand">${logoSvg(true)}<p>${t('footerLine')}</p></div><div><span class="kicker">${t('addressLabel')}</span><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(C.contact.address)}" target="_blank">${C.contact.address} ↗</a></div><div><span class="kicker">${t('phonesLabel')}</span>${C.contact.phones.map((p,i)=>`<a href="tel:${C.contact.phoneLinks[i]}">${p}</a>`).join('')}</div><div><span class="kicker">${t('socialLabel')}</span><a href="${C.contact.telegram}" target="_blank">Telegram ↗</a><a href="${C.contact.tiktok}" target="_blank">TikTok ↗</a></div></div><div class="section footer-bottom"><span>DAXI / CHIȘINĂU</span><button data-lang>${state.lang.toUpperCase()} / ${t('other')}</button></div>`; }
 
   function howScene(n,title,text,type){ return `<article class="how-scene" data-scene="${n}"><div class="scene-copy"><span class="scene-num">0${n}</span><h3>${title}</h3><p>${text}</p>${n===4?`<button class="pill pill-black" data-scroll="paths">${t('calculate')} →</button>`:''}</div><div class="scene-art">${sceneArt(type)}</div></article>`; }
   function sceneArt(type){ if(type==='request')return `<div class="request-card"><span>◉</span><strong>${state.lang==='ru'?'Куда едем?':'Unde mergem?'}</strong><i></i><button>${state.lang==='ru'?'Найти машину':'Găsește mașina'} <b>→</b></button></div><div class="scene-platforms"><b>Yandex</b><b>Bolt</b><b>Letz</b></div>`; if(type==='hub')return `<div class="hub"><div class="hub-top"><span>Yandex</span><span>Bolt</span><span>Letz</span></div>${routeSvg('hub')}<div class="hub-node">DAXI</div><div class="driver-node">🚕 <span>${state.lang==='ru'?'Твой заказ':'Comanda ta'}</span></div></div>`; if(type==='services')return `<div class="service-grid">${[['▣',state.lang==='ru'?'Лицензия':'Licență'],['▤',state.lang==='ru'?'Касса':'Casă fiscală'],['✓',state.lang==='ru'?'Документы':'Acte'],['◆',state.lang==='ru'?'Страховка':'Asigurare'],['⌁',state.lang==='ru'?'Сервис':'Service'],['◎','24/7']].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>`; return `<div class="finance-art"><div class="phone small-phone">${appScreen('finance')}</div><div class="balance-card"><span>${state.lang==='ru'?'Баланс':'Sold'}</span><strong>12 480<small> lei</small></strong>${demoBadge()}</div></div>`; }

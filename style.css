@@ -233,3 +233,92 @@ body.flow-lock .result-shell{padding-top:44px;padding-bottom:72px}
   body.flow-lock .chooser-cards,body.flow-lock .chooser-card,body.flow-lock .chooser-card>div{min-width:0}
   body.flow-lock .chooser-card strong,body.flow-lock .chooser-card small{overflow-wrap:anywhere}
 }
+
+
+/* Detailed company landing */
+.flow-nav-actions{display:flex;align-items:center;gap:14px;margin-left:auto}
+.flow-about-link{border:0;background:transparent;color:#5f584e;font-size:12px;font-weight:600;min-height:42px;padding:8px 6px;position:relative}
+.flow-about-link:after{content:"";position:absolute;left:6px;right:6px;bottom:8px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .3s var(--ease)}
+.flow-about-link:hover:after,.flow-about-link:focus-visible:after{transform:scaleX(1);transform-origin:left}
+
+.chooser-about{margin:14px auto 0;border:0;background:transparent;color:#4f493f;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:38px;font-size:11px;font-weight:600;padding:6px 8px}
+.chooser-about i{font-style:normal;width:24px;height:24px;border:1px solid #d4cec3;border-radius:50%;display:grid;place-items:center;transition:transform .3s var(--ease),background .3s var(--ease)}
+.chooser-about:hover i{transform:rotate(45deg);background:var(--amber);border-color:var(--amber)}
+
+.partners-section{overflow:hidden}
+.partners-head{display:grid;grid-template-columns:1.3fr .7fr;gap:72px;align-items:end;margin-bottom:64px}
+.partners-head .display{font-size:clamp(48px,5.4vw,78px);max-width:900px;margin-top:24px}
+.partners-head>p{color:#aaa296;max-width:380px;font-size:15px;line-height:1.65}
+.partner-rail{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #39352f;border-bottom:1px solid #39352f}
+.partner-rail article{min-height:238px;padding:28px 24px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #39352f;position:relative;overflow:hidden}
+.partner-rail article:last-child{border-right:0}
+.partner-rail article:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-110px;bottom:-110px;background:#FDA62110;transition:transform .45s var(--ease)}
+.partner-rail article:hover:after{transform:scale(1.45)}
+.partner-rail span{font-size:11px;color:#827b70}
+.partner-rail strong{font:800 clamp(31px,4vw,56px)/.95 "Inter Tight",sans-serif;letter-spacing:-.055em;position:relative;z-index:1}
+.partner-rail small{font-size:12px;color:#9f978b;position:relative;z-index:1}
+.partner-rail .partner-daxi{background:#16140f}
+.partner-rail .partner-daxi strong{color:var(--amber)}
+.partner-note{font-size:11px;color:#746f66;max-width:760px;line-height:1.65;margin-top:20px}
+
+.company-detail-head{display:grid;grid-template-columns:1.2fr .8fr;gap:64px;align-items:end;margin-bottom:56px}
+.company-detail-head .kicker{grid-column:1/-1}
+.company-detail-head .display{font-size:clamp(48px,5.2vw,76px);max-width:860px}
+.company-detail-head>p{font-size:16px;color:#625c53;line-height:1.65;max-width:420px}
+.company-fact-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #ded9d0;border-radius:24px;overflow:hidden}
+.company-fact-grid article{padding:32px;min-height:250px;border-right:1px solid #ded9d0;border-bottom:1px solid #ded9d0;display:flex;flex-direction:column}
+.company-fact-grid article:nth-child(3n){border-right:0}
+.company-fact-grid article:nth-child(n+4){border-bottom:0}
+.company-fact-grid article>span{font-size:11px;color:#9b9388}
+.company-fact-grid h3{font-size:30px;margin-top:auto;margin-bottom:14px}
+.company-fact-grid p{font-size:14px;line-height:1.6;color:#6d665d;max-width:280px}
+.company-app-flow{margin-top:24px;background:#f4f2ed;border-radius:24px;padding:34px 36px;display:flex;align-items:center;justify-content:space-between;gap:32px}
+.company-app-flow>div{max-width:720px}
+.company-app-flow .kicker{color:#8c8477}
+.company-app-flow h3{font-size:34px;margin:14px 0 12px}
+.company-app-flow p{font-size:14px;color:#6a6257;line-height:1.6}
+.company-app-flow .pill{white-space:nowrap}
+
+@media(max-width:960px){
+  .partners-head,.company-detail-head{grid-template-columns:1fr;gap:28px}
+  .partners-head>p,.company-detail-head>p{max-width:620px}
+  .partner-rail{grid-template-columns:repeat(2,1fr)}
+  .partner-rail article:nth-child(2){border-right:0}
+  .partner-rail article:nth-child(-n+2){border-bottom:1px solid #39352f}
+  .company-fact-grid{grid-template-columns:repeat(2,1fr)}
+  .company-fact-grid article:nth-child(3n){border-right:1px solid #ded9d0}
+  .company-fact-grid article:nth-child(2n){border-right:0}
+  .company-fact-grid article:nth-child(n+4){border-bottom:1px solid #ded9d0}
+  .company-fact-grid article:nth-child(n+5){border-bottom:0}
+}
+
+@media(max-width:760px){
+  .flow-nav-actions{gap:6px}
+  .flow-about-link{font-size:10px;padding:7px 4px}
+  .chooser-about{font-size:9px;margin-top:5px;min-height:30px;padding:3px 6px;flex:0 0 auto}
+  .chooser-about i{width:20px;height:20px}
+  body.flow-lock .chooser-note{margin-top:5px}
+  .partners-head{margin-bottom:36px}
+  .partners-head .display,.company-detail-head .display{font-size:43px}
+  .partners-head>p,.company-detail-head>p{font-size:14px}
+  .partner-rail{grid-template-columns:1fr 1fr}
+  .partner-rail article{min-height:170px;padding:20px 16px}
+  .partner-rail strong{font-size:32px}
+  .partner-rail small{font-size:10px;line-height:1.4}
+  .partner-note{font-size:10px}
+  .company-detail-head{margin-bottom:36px}
+  .company-fact-grid{grid-template-columns:1fr;border-radius:20px}
+  .company-fact-grid article,.company-fact-grid article:nth-child(3n),.company-fact-grid article:nth-child(2n),.company-fact-grid article:nth-child(n+4),.company-fact-grid article:nth-child(n+5){border-right:0;border-bottom:1px solid #ded9d0}
+  .company-fact-grid article:last-child{border-bottom:0}
+  .company-fact-grid article{min-height:185px;padding:24px}
+  .company-fact-grid h3{font-size:28px}
+  .company-fact-grid p{font-size:13px}
+  .company-app-flow{padding:26px 22px;align-items:flex-start;flex-direction:column;border-radius:20px}
+  .company-app-flow h3{font-size:30px}
+  .company-app-flow p{font-size:13px}
+}
+
+@media(max-width:390px) and (max-height:700px){
+  .chooser-about{display:none}
+  .flow-about-link{font-size:9px}
+}

@@ -29,27 +29,58 @@ jobs:
           cat > verify.mjs <<'JS'
           import { chromium } from 'playwright';
           const browser = await chromium.launch({headless:true});
-          const page = await browser.newPage({viewport:{width:360,height:800}});
-          await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
-          await page.evaluate(()=>{localStorage.clear();location.reload()});
-          await page.waitForSelector('#intro:not([hidden])');
-          if(await page.locator('[data-intro-continue]').count()) throw new Error('Intro still has continue confirmation');
-          await page.waitForSelector('.chooser-page',{timeout:7000});
-          const layout=await page.evaluate(()=>({
-            bodyClass:document.body.className,
-            bodyScroll:document.body.scrollHeight,
-            inner:innerHeight,
-            homeHidden:document.querySelector('#home').hidden,
-            flowDisplay:getComputedStyle(document.querySelector('#flow')).display,
-            flowPos:getComputedStyle(document.querySelector('#flow')).position
-          }));
-          console.log('LAYOUT',layout);
-          if(!layout.bodyClass.includes('flow-lock')) throw new Error('body is not flow locked');
-          if(!layout.homeHidden) throw new Error('landing home is still visible');
-          if(layout.bodyScroll>layout.inner+2) throw new Error('document still scrolls like a landing: '+JSON.stringify(layout));
-          if(layout.flowPos!=='fixed') throw new Error('#flow is not fixed');
-          await page.locator('[data-path="driver"]').click();
+
+          async function mobileLayout(width,height){
+            const context=await browser.newContext({viewport:{width,height}});
+            const page=await context.newPage();
+            await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+            await page.evaluate(()=>localStorage.clear());
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForSelector('#intro:not([hidden])');
+            if(await page.locator('[data-intro-continue]').count()) throw new Error('Intro still has continue confirmation');
+            await page.locator('[data-intro-skip]').click();
+            await page.waitForSelector('.chooser-page');
+            const layout=await page.evaluate(()=> {
+              const intro=document.querySelector('.chooser-intro').getBoundingClientRect();
+              const panel=document.querySelector('.chooser-panel').getBoundingClientRect();
+              return {
+                width:innerWidth,
+                height:innerHeight,
+                bodyClass:document.body.className,
+                bodyScrollH:document.body.scrollHeight,
+                bodyScrollW:document.documentElement.scrollWidth,
+                homeHidden:document.querySelector('#home').hidden,
+                flowPos:getComputedStyle(document.querySelector('#flow')).position,
+                columns:getComputedStyle(document.querySelector('.chooser-page')).gridTemplateColumns,
+                intro:{left:intro.left,right:intro.right,width:intro.width,top:intro.top,bottom:intro.bottom},
+                panel:{left:panel.left,right:panel.right,width:panel.width,top:panel.top,bottom:panel.bottom}
+              };
+            });
+            console.log('MOBILE',width,height,layout);
+            if(!layout.bodyClass.includes('flow-lock')) throw new Error('body is not flow locked');
+            if(!layout.homeHidden) throw new Error('landing home is visible');
+            if(layout.bodyScrollH>layout.height+2) throw new Error('document scrolls vertically: '+JSON.stringify(layout));
+            if(layout.bodyScrollW>layout.width+2) throw new Error('horizontal overflow: '+JSON.stringify(layout));
+            if(layout.flowPos!=='fixed') throw new Error('#flow is not fixed');
+            for(const [name,box] of Object.entries({intro:layout.intro,panel:layout.panel})){
+              if(box.left < -1 || box.right > layout.width+1 || box.width > layout.width+2)
+                throw new Error(name+' exceeds viewport: '+JSON.stringify(layout));
+            }
+            if(Math.abs(layout.intro.width-layout.width)>2 || Math.abs(layout.panel.width-layout.width)>2)
+              throw new Error('chooser did not collapse to one column: '+JSON.stringify(layout));
+            await context.close();
+          }
+
+          for(const [w,h] of [[360,800],[390,844],[430,932]]) await mobileLayout(w,h);
+
+          const context=await browser.newContext({viewport:{width:360,height:800}});
+          const page=await context.newPage();
+          await page.goto('http://127.0.0.1:4173/?path=driver',{waitUntil:'domcontentloaded'});
+          await page.evaluate(()=>localStorage.clear());
+          await page.reload({waitUntil:'domcontentloaded'});
           await page.waitForSelector('.quiz-page');
+          let metrics=await page.evaluate(()=>({w:innerWidth,scrollW:document.documentElement.scrollWidth,scrollH:document.body.scrollHeight,h:innerHeight}));
+          if(metrics.scrollW>metrics.w+2 || metrics.scrollH>metrics.h+2) throw new Error('driver quiz overflows viewport: '+JSON.stringify(metrics));
           await page.locator('[data-answer="experience"]').first().click();
           await page.waitForFunction(()=>document.querySelector('#question')?.dataset.step==='car');
           await page.locator('[data-picker="brand"] .picker-button').click();
@@ -65,18 +96,28 @@ jobs:
           await page.waitForSelector('.result');
           const result=await page.evaluate(()=>({
             bodyScroll:document.body.scrollHeight,
-            inner:innerHeight,
+            docScrollW:document.documentElement.scrollWidth,
+            innerH:innerHeight,
+            innerW:innerWidth,
             resultOverflow:getComputedStyle(document.querySelector('.result')).overflowY
           }));
           console.log('RESULT',result);
-          if(result.bodyScroll>result.inner+2) throw new Error('body scroll returned on result');
+          if(result.bodyScroll>result.innerH+2) throw new Error('body scroll returned on result');
+          if(result.docScrollW>result.innerW+2) throw new Error('result has horizontal overflow');
+          await context.close();
+
           for(const p of ['driver','car','owner','business']){
-            await page.goto('http://127.0.0.1:4173/?path='+p,{waitUntil:'domcontentloaded'});
-            await page.evaluate(()=>localStorage.clear());
-            await page.reload({waitUntil:'domcontentloaded'});
-            await page.waitForSelector('.quiz-page');
-            const step=await page.locator('#question').getAttribute('data-step');
+            const ctx=await browser.newContext({viewport:{width:390,height:844}});
+            const pg=await ctx.newPage();
+            await pg.goto('http://127.0.0.1:4173/?path='+p,{waitUntil:'domcontentloaded'});
+            await pg.evaluate(()=>localStorage.clear());
+            await pg.reload({waitUntil:'domcontentloaded'});
+            await pg.waitForSelector('.quiz-page');
+            const step=await pg.locator('#question').getAttribute('data-step');
+            const x=await pg.evaluate(()=>({w:innerWidth,scrollW:document.documentElement.scrollWidth}));
+            if(x.scrollW>x.w+2) throw new Error(p+' path has horizontal overflow');
             console.log('PATH',p,'STEP',step);
+            await ctx.close();
           }
           await browser.close();
           JS
